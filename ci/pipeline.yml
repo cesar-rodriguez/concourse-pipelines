@@ -39,6 +39,10 @@ jobs:
         run:
           path: sh
           args: ["infrastructure-repo/ci/scripts/build.sh", "stage"]
+    - put: terraform-pipeline-rc
+      params: {file: built-artifact/terraform-plan-*.tgz}
+    - put: version
+      params: {file: version/number}
 
 resources:
 - name: infrastructure-repo
@@ -56,3 +60,11 @@ resources:
     branch: version
     file: version
     private_key: ((github-private-key))
+- name: terraform-pipeline-artifacts
+  type: s3
+  source:
+    bucket: terraform-pipeline-rc
+    regexp: terraform-plan-(.*).tgz
+    access_key_id: ((s3-access-key-id))
+    secret_access_key: ((s3-secret-access-key))
+
