@@ -39,7 +39,7 @@ jobs:
         run:
           path: sh
           args: ["infrastructure-repo/ci/scripts/build.sh", "stage"]
-    - put: terraform-pipeline-rc
+    - put: terraform-pipeline-artifacts
       params: {file: built-artifact/terraform-plan-*.tgz}
     - put: version
       params: {file: version/number}
