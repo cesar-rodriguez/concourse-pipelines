@@ -15,8 +15,8 @@ errors=0
 for env in $(ls infrastructure-repo/environments | grep '.tfvars' | cut -d '.' -f 1)
 do
     echo "****************** BUILDING $env ******************"
-    cp -R infrastructure-repo terraform-plan/$env
-    cd terraform-plan/$env
+    cp -R infrastructure-repo terraform-plan-out/$env
+    cd terraform-plan-out/$env
 
     echo "BUILDING $env: terraform init"
     terraform init -input=false -backend-config=environments/$env.tf
@@ -49,17 +49,10 @@ do
 done
 
 set -x
-echo
-echo
-pwd
-ls
-cat version/number
-echo
-echo
-
 if [ $errors -eq 0 ]
 then
-    tar -cvzf terraform-plan-$(cat version/number).tgz terraform-plan
+    tar -cvzf terraform-plan-$(cat version/number).tgz terraform-plan-out
+    mv terraform-plan-$(cat version/number).tgz terraform-plan-out
     exit $errors
 else
     exit $errors

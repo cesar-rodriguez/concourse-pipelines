@@ -35,12 +35,12 @@ jobs:
           - name: infrastructure-repo
           - name: version
         outputs:
-          - name: terraform-plan
+          - name: terraform-plan-out
         run:
           path: sh
           args: ["infrastructure-repo/ci/scripts/build.sh", "stage"]
     - put: terraform-pipeline-artifacts
-      params: {file: built-artifact/terraform-plan-*.tgz}
+      params: {file: terraform-plan-out/terraform-plan-*.tgz}
     - put: version
       params: {file: version/number}
 
