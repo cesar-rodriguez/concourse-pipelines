@@ -25,6 +25,7 @@ jobs:
       trigger: true
     - get: version
       params: {pre: rc}
+    - get: send-email
     - task: build
       config:
         platform: linux
@@ -34,7 +35,6 @@ jobs:
         inputs:
           - name: infrastructure-repo
           - name: version
-          - name: send-email
         outputs:
           - name: terraform-plan-out
           - name: email-out
