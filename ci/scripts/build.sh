@@ -5,6 +5,18 @@
 
 set -eu
 
+set -x
+`git -C email-resource-source --no-pager show $(git -C email-resource-source rev-parse HEAD) -s --format='%ae' > email-out/${OUTPUT_RECEPIENTS_FILE_NAME}`
+# ensure you esape the ${BUILD_ID} variable with leading \
+echo -e "Email resource dynamic recipient demo on $(date): build \${BUILD_ID}" > email/${OUTPUT_SUBJECT_FILE_NAME}
+echo -e "Cheers!\n\n \
+Build ID: \${BUILD_ID} \n \
+Build Name: \${BUILD_NAME} \n \
+Build Job Name: \${BUILD_JOB_NAME} \n \
+Build Pipeline Name: \${BUILD_PIPELINE_NAME} \n \
+ATC External URL: \${ATC_EXTERNAL_URL}" > email/${OUTPUT_BODY_FILE_NAME}
+set +x
+
 # Formatting
 cd infrastructure-repo
 terraform fmt > /dev/null 2>&1
