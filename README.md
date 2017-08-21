@@ -49,7 +49,4 @@ Scan -> Build -> RC -> email for manual review -> apply -> git-hub release
 
 Setting up pipeline
 ====================
-fly -t tutorial sp --config ci/pipeline.yml --pipeline terraform -n --load-vars-from ci/credentials.yml --var "gh-private-key=$(cat ~/.ssh/id_rsa_pub_github_no_pass)"
-
-
-
+fly -t tutorial sp --config ci/pipeline.yml --pipeline terraform -n --load-vars-from ci/credentials.yml --var "github-private-key=$(cat ~/.ssh/id_rsa_pub_github_no_pass)"
