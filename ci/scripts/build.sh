@@ -7,6 +7,7 @@ set -eu
 
 set -x
 `git -C infrastructure-repo --no-pager show $(git -C infrastructure-repo rev-parse HEAD) -s --format='%ae' > email-out/${OUTPUT_RECEPIENTS_FILE_NAME}`
+cat email-out/${OUTPUT_RECEPIENTS_FILE_NAME}
 # ensure you esape the ${BUILD_ID} variable with leading \
 echo -e "Email resource dynamic recipient demo on $(date): build \${BUILD_ID}" > email-out/${OUTPUT_SUBJECT_FILE_NAME}
 echo -e "Cheers!\n\n \
