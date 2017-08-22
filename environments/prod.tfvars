@@ -1,2 +1,2 @@
 var1="testprod1"
-var2="testprod2"
+#var2="testprod2"
