@@ -48,10 +48,11 @@ jobs:
       params: {file: terraform-plan-out/terraform-plan-*.tgz}
     - put: version
       params: {file: version/number}
-    - put: send-email
-      params:
-        subject: email-out/generated-subject
-        body: email-out/generated-body
+    - ensure:
+      - put: send-email
+        params:
+          subject: email-out/generated-subject
+          body: email-out/generated-body
 
 resources:
 - name: infrastructure-repo
