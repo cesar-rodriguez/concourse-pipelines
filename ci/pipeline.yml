@@ -25,7 +25,6 @@ jobs:
       trigger: true
     - get: version
       params: {pre: rc}
-    - get: send-email
     - task: build
       config:
         platform: linux
@@ -87,7 +86,7 @@ resources:
       username: {{smtp-username}}
       password: {{smtp-password}}
     from: {{email-from}}
-    to: {{email-from}}
+    to: [{{email-from}}]
 
 resource_types:
   - name: email
