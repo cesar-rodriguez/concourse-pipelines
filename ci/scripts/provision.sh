@@ -1,12 +1,17 @@
 #!/bin/sh
 #
-# Script for producing terraform plan file.
+# Performs terraform apply
 #
 
-set -eux
-
-ls infrastructure-repo-artifacts
-ls infrastructure-repo-artifacts/version
-cat infrastructure-repo-artifacts/version/number
-#tar -xvzf infrastructure-repo-artifacts/terraform-plan-$(cat version/number).tgz
-
+set -e
+tar -xzf infrastructure-repo-artifacts/terraform-plan-$(cat infrastructure-repo-artifacts/version).tgz
+for env in $(ls terraform-plan-out)
+do
+    echo "****************** PROVISIONING $env ******************"
+    set -x
+    cd terraform-plan-out/$env
+    cat tfplan.txt
+    terraform apply -input=false tfplan
+    set +x
+    cd ../../
+done

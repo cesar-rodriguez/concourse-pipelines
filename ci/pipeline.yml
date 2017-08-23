@@ -63,11 +63,11 @@ jobs:
             - name: infrastructure-repo
             - name: infrastructure-repo-artifacts
             - name: version
-          outputs:
-            - name: terraform-apply-out
           run:
             path: sh
             args: ["infrastructure-repo/ci/scripts/provision.sh"]
+      - put: version
+        params: {file: version/number}
 
 resources:
 - name: infrastructure-repo
