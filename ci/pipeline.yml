@@ -20,39 +20,29 @@ jobs:
     public: true
     serial_groups: [version]
     plan:
-    - get: infrastructure-repo
-      passed: ["scan"]
-      trigger: true
-    - get: version
-      params: {pre: rc}
-    - task: build
-      config:
-        platform: linux
-        image_resource:
-          type: docker-image
-          source: {repository: hashicorp/terraform, tag: "light"}
-        inputs:
-          - name: infrastructure-repo
-          - name: version
-        outputs:
-          - name: terraform-plan-out
-          - name: email-out
-        params:
-          OUTPUT_SUBJECT_FILE_NAME: generated-subject
-          OUTPUT_BODY_FILE_NAME: generated-body
-          OUTPUT_RECEPIENTS_FILE_NAME: generated-recepients
-        run:
-          path: sh
-          args: ["infrastructure-repo/ci/scripts/build.sh", "stage"]
-    - put: terraform-pipeline-artifacts
-      params: {file: terraform-plan-out/terraform-plan-*.tgz}
-    - put: version
-      params: {file: version/number}
-    - ensure:
-      - put: send-email
-        params:
-          subject: email-out/generated-subject
-          body: email-out/generated-body
+      - get: infrastructure-repo
+        passed: ["scan"]
+        trigger: true
+      - get: version
+        params: {pre: rc}
+      - task: build
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: hashicorp/terraform, tag: "light"}
+          inputs:
+            - name: infrastructure-repo
+            - name: version
+          outputs:
+            - name: terraform-plan-out
+          run:
+            path: sh
+            args: ["infrastructure-repo/ci/scripts/build.sh", "stage"]
+      - put: terraform-pipeline-artifacts
+        params: {file: terraform-plan-out/terraform-plan-*.tgz}
+      - put: version
+        params: {file: version/number}
 
 resources:
 - name: infrastructure-repo
@@ -77,20 +67,3 @@ resources:
     regexp: terraform-plan-(.*).tgz
     access_key_id: ((s3-access-key-id))
     secret_access_key: ((s3-secret-access-key))
-- name: send-email
-  type: email
-  source:
-    smtp:
-      host: {{smtp-host}}
-      port: {{smtp-port}}
-      anonymous: false
-      username: {{smtp-username}}
-      password: {{smtp-password}}
-    from: {{email-from}}
-    to: [{{email-from}}]
-
-resource_types:
-  - name: email
-    type: docker-image
-    source:
-      repository: pcfseceng/email-resource

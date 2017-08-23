@@ -49,28 +49,13 @@ do
 done
 
 set -x
-# Get email address of committer
-`git -C infrastructure-repo --no-pager show $(git -C infrastructure-repo rev-parse HEAD) -s --format='%ae' > email-out/${OUTPUT_RECEPIENTS_FILE_NAME}`
-
 if [ $errors -eq 0 ]
 then
     # Tar built terraform plans
     tar -cvzf terraform-plan-$(cat version/number).tgz terraform-plan-out
     mv terraform-plan-$(cat version/number).tgz terraform-plan-out
-
-    # Details for email
-    echo -e "[Concourse CI] Sucessfully built \${BUILD_PIPELINE_NAME}: build \${BUILD_ID} on $(date)" > email-out/${OUTPUT_SUBJECT_FILE_NAME}
-    echo -e "Sucessfully built \${BUILD_PIPELINE_NAME}: build \${BUILD_ID} on $(date)\n\n \
-    Build ID: \${BUILD_ID} \n \
-    Ready for review at: \${ATC_EXTERNAL_URL}/teams/main/pipelines/\${BUILD_PIPELINE_NAME}/jobs/\${BUILD_JOB_NAME}/builds/\${BUILD_NAME}" > email-out/${OUTPUT_BODY_FILE_NAME}
     exit $errors
 else
-    # Details for email
-    echo -e "[Concourse CI] Failed build of \${BUILD_PIPELINE_NAME}: build \${BUILD_ID} on $(date)" > email-out/${OUTPUT_SUBJECT_FILE_NAME}
-    echo -e "Failed build of \${BUILD_PIPELINE_NAME}: build \${BUILD_ID} on $(date)\n\n \
-    Build ID: \${BUILD_ID} \n \
-    Review at: \${ATC_EXTERNAL_URL}/teams/main/pipelines/\${BUILD_PIPELINE_NAME}/jobs/\${BUILD_JOB_NAME}/builds/\${BUILD_NAME}" > email-out/${OUTPUT_BODY_FILE_NAME}
-
     exit $errors
 fi
 
