@@ -5,6 +5,8 @@
 
 set -eux
 
-tar -xvzf infrastructure-repo-artifacts/terraform-plan-$(cat version/number).tgz
 ls infrastructure-repo-artifacts
-ls
+ls infrastructure-repo-artifacts/version
+cat infrastructure-repo-artifacts/version/number
+#tar -xvzf infrastructure-repo-artifacts/terraform-plan-$(cat version/number).tgz
+
