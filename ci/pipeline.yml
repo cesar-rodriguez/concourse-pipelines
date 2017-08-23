@@ -38,11 +38,36 @@ jobs:
             - name: terraform-plan-out
           run:
             path: sh
-            args: ["infrastructure-repo/ci/scripts/build.sh", "stage"]
-      - put: terraform-pipeline-artifacts
+            args: ["infrastructure-repo/ci/scripts/build.sh"]
+      - put: infrastructure-repo-artifacts
         params: {file: terraform-plan-out/terraform-plan-*.tgz}
       - put: version
         params: {file: version/number}
+  - name: provision
+    public: true
+    serial_groups: [version]
+    plan:
+      - get: infrastructure-repo
+        passed: ["build"]
+      - get: infrastructure-repo-artifacts
+        passed: ["build"]
+      - get: version
+        params: {bump: final}
+      - task: provision
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: hashicorp/terraform, tag: "light"}
+          inputs:
+            - name: infrastructure-repo
+            - name: infrastructure-repo-artifacts
+            - name: version
+          outputs:
+            - name: terraform-apply-out
+          run:
+            path: sh
+            args: ["infrastructure-repo/ci/scripts/provision.sh"]
 
 resources:
 - name: infrastructure-repo
@@ -60,7 +85,7 @@ resources:
     branch: version
     file: version
     private_key: ((github-private-key))
-- name: terraform-pipeline-artifacts
+- name: infrastructure-repo-artifacts
   type: s3
   source:
     bucket: terraform-pipeline-rc
