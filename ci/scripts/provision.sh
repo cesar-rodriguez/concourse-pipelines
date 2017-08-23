@@ -5,6 +5,8 @@
 
 set -eux
 
-ls infrastructure-repo
+tar -xvzf infrastructure-repo-artifacts/terraform-plan-0.0.0-rc.8.tgz
 ls infrastructure-repo-artifacts
-ls version
+ls
+
+cat version/number
