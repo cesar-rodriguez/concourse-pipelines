@@ -67,7 +67,17 @@ jobs:
             path: sh
             args: ["infrastructure-repo/ci/scripts/provision.sh"]
       - put: version
-        params: {file: version/number}
+        params: { bump: final }
+  - name: bump-major
+    serial_groups: [version]
+    plan:
+    - put: version
+      params: {bump: major}
+  - name: bump-minor
+    serial_groups: [version]
+    plan:
+    - put: version
+      params: {bump: minor}
 
 resources:
 - name: infrastructure-repo
