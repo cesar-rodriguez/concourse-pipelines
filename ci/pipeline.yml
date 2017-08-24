@@ -72,8 +72,7 @@ jobs:
             args: ["infrastructure-repo/ci/scripts/provision.sh"]
       - put: version
         params: { bump: final }
-      - name: release
-        put: github
+      - put: github
         params:
           name: release/name
           tag:  release/tag
