@@ -72,7 +72,7 @@ jobs:
             args: ["infrastructure-repo/ci/scripts/provision.sh"]
       - put: version
         params: { bump: final }
-      - put: github
+      - put: release
         params:
           name: release/name
           tag:  release/tag
@@ -128,6 +128,6 @@ resources:
 - name: release
   type: github-release
   source:
-    owner: (( github-org ))
-    repository: (( github-repo ))
-    access_token: (( github-access-token ))
+    owner: ((github-org))
+    repository: ((github-repo))
+    access_token: ((github-access-token))
