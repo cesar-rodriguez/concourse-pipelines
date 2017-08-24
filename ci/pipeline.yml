@@ -78,6 +78,14 @@ jobs:
     plan:
     - put: version
       params: {bump: minor}
+  - name: bump-patch
+    serial_groups: [version]
+    plan:
+    - get: version
+      passed: [provision]
+      trigger: true
+    - put: version
+      params: {bump: patch, pre: rc}
 
 resources:
 - name: infrastructure-repo
