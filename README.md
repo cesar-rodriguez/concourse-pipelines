@@ -50,3 +50,14 @@ Scan -> Build -> RC -> email for manual review -> apply -> git-hub release
 Setting up pipeline
 ====================
 fly -t tutorial sp --config ci/pipeline.yml --pipeline terraform -n --load-vars-from ci/credentials.yml --var "github-private-key=$(cat ~/.ssh/id_rsa_pub_github_no_pass)"
+
+Versioning
+===========
+
+- major: Bump the major version number, e.g. 1.0.0 -> 2.0.0. Introduces breaking changes on terraform templates
+- minor: Bump the minor version number, e.g. 0.1.0 -> 0.2.0. Non-breaking changes to terraform templates
+- patch: Bump the patch version number, e.g. 0.0.1 -> 0.0.2. Minor changes to tfvars
+
+MAJOR version when you make incompatible API changes,
+MINOR version when you add functionality in a backwards-compatible manner, and
+PATCH version when you make backwards-compatible bug fixes.

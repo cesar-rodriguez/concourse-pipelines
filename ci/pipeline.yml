@@ -5,6 +5,17 @@ jobs:
     plan:
     - get: infrastructure-repo
       trigger: true
+    - task: format
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: {repository: hashicorp/terraform, tag: "light"}
+        inputs:
+          - name: infrastructure-repo
+        run:
+          path: sh
+          args: ["infrastructure-repo/ci/scripts/format.sh"]
     - task: tflint
       config:
         platform: linux
