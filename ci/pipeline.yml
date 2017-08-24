@@ -85,7 +85,7 @@ jobs:
       passed: [provision]
       trigger: true
     - put: version
-      params: {bump: patch, pre: rc}
+      params: {bump: patch}
 
 resources:
 - name: infrastructure-repo
