@@ -16,6 +16,7 @@ jobs:
         run:
           path: sh
           args: ["infrastructure-repo/ci/scripts/scan.sh"]
+
   - name: build
     public: true
     serial_groups: [version]
@@ -43,6 +44,7 @@ jobs:
         params: {file: terraform-plan-out/terraform-plan-*.tgz}
       - put: version
         params: {file: version/number}
+
   - name: provision
     public: true
     serial_groups: [version]
@@ -63,21 +65,31 @@ jobs:
             - name: infrastructure-repo
             - name: infrastructure-repo-artifacts
             - name: version
+          outputs:
+            - name: release
           run:
             path: sh
             args: ["infrastructure-repo/ci/scripts/provision.sh"]
       - put: version
         params: { bump: final }
+      - name: release
+        put: github
+        params:
+          name: release/name
+          tag:  release/tag
+
   - name: bump-major
     serial_groups: [version]
     plan:
     - put: version
       params: {bump: major}
+
   - name: bump-minor
     serial_groups: [version]
     plan:
     - put: version
       params: {bump: minor}
+
   - name: bump-patch
     serial_groups: [version]
     plan:
@@ -85,7 +97,8 @@ jobs:
       passed: [provision]
       trigger: true
     - put: version
-      params: {bump: patch}
+      params: {bump: patch, pre: rc}
+
 
 resources:
 - name: infrastructure-repo
@@ -94,6 +107,7 @@ resources:
     uri: ((github-uri))
     branch: master
     private_key: ((github-private-key))
+
 - name: version
   type: semver
   source:
@@ -103,6 +117,7 @@ resources:
     branch: version
     file: version
     private_key: ((github-private-key))
+
 - name: infrastructure-repo-artifacts
   type: s3
   source:
@@ -110,3 +125,10 @@ resources:
     regexp: terraform-plan-(.*).tgz
     access_key_id: ((s3-access-key-id))
     secret_access_key: ((s3-secret-access-key))
+
+- name: release
+  type: github-release
+  source:
+    owner: (( github-org ))
+    repository: (( github-repo ))
+    access_token: (( github-access-token ))

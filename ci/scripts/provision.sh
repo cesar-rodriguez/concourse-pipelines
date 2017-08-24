@@ -15,3 +15,6 @@ do
     set +x
     cd ../../
 done
+
+echo "v$(cat version/number)" > release/tag
+echo "terraform-pipeline v$(cat version/number)" > release/name
