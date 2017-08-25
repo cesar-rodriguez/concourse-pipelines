@@ -28,14 +28,34 @@ jobs:
           path: sh
           args: ["infrastructure-repo/ci/scripts/scan.sh"]
 
-  - name: build
-    public: true
-    serial_groups: [version]
+  - name: aws
+    public: false
     plan:
       - get: vault
         params:
           paths:
             - aws/therasecaws/sts/aws-global-admin
+      - task: get-credentials
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ubuntu, tag: "14.04"}
+          inputs:
+          - name: vault
+          outputs:
+          - name: aws-creds
+          run:
+            path: sh
+            args:
+            - -exc
+            - |
+              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq '.'
+
+  - name: build
+    public: true
+    serial_groups: [version]
+    plan:
       - get: infrastructure-repo
         passed: ["scan"]
         trigger: true
