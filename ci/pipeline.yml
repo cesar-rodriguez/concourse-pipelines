@@ -5,7 +5,7 @@ jobs:
     plan:
     - get: infrastructure-repo
       trigger: true
-    - task: format
+    - task: terraform-format
       config:
         platform: linux
         image_resource:
