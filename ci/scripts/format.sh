@@ -3,7 +3,7 @@
 # Verify if terraform templates are formatted
 #
 
-set -eux
+set -e
 
 cd infrastructure-repo
 
