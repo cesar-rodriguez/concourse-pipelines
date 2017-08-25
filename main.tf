@@ -17,3 +17,4 @@ resource "random_id" "rand" {
 output "random" {
   value = "${random_id.rand.keepers.keep1}"
 }
+
