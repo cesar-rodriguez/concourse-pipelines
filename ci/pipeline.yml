@@ -28,19 +28,25 @@ jobs:
           path: sh
           args: ["infrastructure-repo/ci/scripts/scan.sh"]
 
-  - name: aws
-    public: false
+  - name: build
+    public: true
+    serial_groups: [version]
     plan:
       - get: vault
         params:
           paths:
             - aws/therasecaws/sts/aws-global-admin
+      - get: infrastructure-repo
+        passed: ["scan"]
+        trigger: true
+      - get: version
+        params: {pre: rc}
       - task: get-credentials
         config:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ubuntu, tag: "14.04"}
+            source: {repository: digitalgenius/alpine-jq-git, tag: "latest"}
           inputs:
           - name: vault
           outputs:
@@ -50,17 +56,9 @@ jobs:
             args:
             - -exc
             - |
-              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq '.'
-
-  - name: build
-    public: true
-    serial_groups: [version]
-    plan:
-      - get: infrastructure-repo
-        passed: ["scan"]
-        trigger: true
-      - get: version
-        params: {pre: rc}
+              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq '.access_key' > aws-creds/access_key
+              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq '.secret_key' > aws-creds/secret_key
+              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq '.security_token' > aws-creds/security_token
       - task: build
         config:
           platform: linux
@@ -68,7 +66,7 @@ jobs:
             type: docker-image
             source: {repository: hashicorp/terraform, tag: "light"}
           inputs:
-            - name: vault
+            - name: aws-creds
             - name: infrastructure-repo
             - name: version
           outputs:
