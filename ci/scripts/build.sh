@@ -5,6 +5,7 @@
 
 set -e
 
+export AWS_ACCESS_KEY=$(cat aws-creds/access_key)
 echo $AWS_ACCESS_KEY
 
 # "Building" terraform

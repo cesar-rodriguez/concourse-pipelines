@@ -71,8 +71,6 @@ jobs:
             - name: version
           outputs:
             - name: terraform-plan-out
-          params:
-            AWS_ACCESS_KEY: aws-creds/access_key
           run:
             path: sh
             args: ["infrastructure-repo/ci/scripts/build.sh"]
