@@ -5,7 +5,7 @@
 
 set -e
 # Testing vault
-ls
+ls vault
 
 # "Building" terraform
 errors=0
