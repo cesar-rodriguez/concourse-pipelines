@@ -14,9 +14,9 @@ cd infrastructure-repo
 format_status=$(terraform fmt | wc -l)
 if [ $format_status -gt 0 ]
 then
-    echo -e "${RED}[SCAN] failed: Templates are not formatted. Please run 'terraform fmt'"
+    echo -e "${RED}Failed: Templates are not formatted. Please run 'terraform fmt'"
     exit 1
 else
-    echo -e "${GREEN}[SCAN] successful"
+    echo -e "${GREEN}Success! Templates are formatted."
     exit 0
 fi
