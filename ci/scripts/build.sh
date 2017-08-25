@@ -5,6 +5,8 @@
 
 set -e
 
+echo $AWS_ACCESS_KEY
+
 # "Building" terraform
 errors=0
 for env in $(ls infrastructure-repo/environments | grep '.tfvars' | cut -d '.' -f 1)
