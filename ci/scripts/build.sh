@@ -5,6 +5,8 @@
 
 set -e
 # Testing vault
+wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
+mv jq-linux64 jq
 cat vault/aws/therasecaws/sts/aws-global-admin.json | jq '.'
 
 # "Building" terraform
