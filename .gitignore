@@ -10,4 +10,4 @@ credentials.yml
 
 # Other
 .DS_Store
-
+.ignore
