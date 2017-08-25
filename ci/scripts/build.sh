@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Script for producing terraform plan file.
+# Produces terraform plan file.
 #
 
 set -e
@@ -43,11 +43,10 @@ do
     fi
 done
 
-set -x
 if [ $errors -eq 0 ]
 then
     # Tar built terraform plans
-    tar -cvzf terraform-plan-$(cat version/number).tgz terraform-plan-out
+    tar -czf terraform-plan-$(cat version/number).tgz terraform-plan-out
     mv terraform-plan-$(cat version/number).tgz terraform-plan-out
     exit $errors
 else
