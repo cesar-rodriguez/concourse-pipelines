@@ -3,12 +3,7 @@
 # Script for producing terraform plan file.
 #
 
-set -eu
-
-# Formatting
-cd infrastructure-repo
-terraform fmt > /dev/null 2>&1
-cd ../
+set -e
 
 # "Building" terraform
 errors=0
