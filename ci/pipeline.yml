@@ -32,6 +32,10 @@ jobs:
     public: true
     serial_groups: [version]
     plan:
+      - get: vault
+        params:
+          paths:
+            - aws/therasecaws/sts/aws-global-admin
       - get: infrastructure-repo
         passed: ["scan"]
         trigger: true
@@ -142,3 +146,11 @@ resources:
     owner: ((github-org))
     repository: ((github-repo))
     access_token: ((github-access-token))
+
+- name: vault
+  type: vault
+  source:
+    url: ((vault-addr))
+    auth_method: AppRole
+    role_id: ((vault-role-id))
+    secret_id: ((vault-secret-id))
