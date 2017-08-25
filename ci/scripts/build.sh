@@ -5,7 +5,7 @@
 
 set -e
 # Testing vault
-cat vault/aws/therasecaws/sts/aws-global-admin.json
+cat vault/aws/therasecaws/sts/aws-global-admin.json | jq '.'
 
 # "Building" terraform
 errors=0
