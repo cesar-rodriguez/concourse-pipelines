@@ -154,3 +154,10 @@ resources:
     auth_method: AppRole
     role_id: ((vault-role-id))
     secret_id: ((vault-secret-id))
+
+resource_types:
+  - name: vault
+    type: docker-image
+    source:
+      repository: docurated/concourse-vault-resource
+      tag: latest
