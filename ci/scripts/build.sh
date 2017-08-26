@@ -5,8 +5,14 @@
 
 set -e
 
-export AWS_ACCESS_KEY=$(cat aws-creds/access_key)
-echo $AWS_ACCESS_KEY
+set -x
+echo '
+[admin]
+aws_access_key_id = $(cat aws-creds/access_key)
+aws_secret_access_key = $(cat aws-creds/secret_key)
+aws_session_token = $(cat aws-creds/security_token)
+' > ~/.aws/credentials
+set +x
 
 # "Building" terraform
 errors=0
