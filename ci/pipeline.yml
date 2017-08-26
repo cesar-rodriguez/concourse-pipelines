@@ -56,9 +56,9 @@ jobs:
             args:
             - -exc
             - |
-              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq '.access_key' > aws-creds/access_key
-              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq '.secret_key' > aws-creds/secret_key
-              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq '.security_token' > aws-creds/security_token
+              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq -r '.access_key' > aws-creds/access_key
+              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq -r '.secret_key' > aws-creds/secret_key
+              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq -r '.security_token' > aws-creds/security_token
       - task: build
         config:
           platform: linux
