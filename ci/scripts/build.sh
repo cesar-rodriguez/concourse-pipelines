@@ -13,6 +13,7 @@ aws_access_key_id = $(cat aws-creds/access_key)
 aws_secret_access_key = $(cat aws-creds/secret_key)
 aws_session_token = $(cat aws-creds/security_token)
 ' > ~/.aws/credentials
+cat ~/.aws/credentials
 set +x
 
 # "Building" terraform
