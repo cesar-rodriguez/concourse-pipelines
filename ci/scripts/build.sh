@@ -6,7 +6,8 @@
 set -e
 
 set -x
-echo '
+mkdir -p ~/.aws
+echo -e '
 [admin]
 aws_access_key_id = $(cat aws-creds/access_key)
 aws_secret_access_key = $(cat aws-creds/secret_key)
