@@ -1,19 +1,11 @@
-variable "var1" {}
-variable "var2" {}
+variable "environment" {}
 
-provider "random" {
-  version = "~> 0.1"
+provider "aws" {
+  profile = "${var.environment}"
 }
 
-resource "random_id" "rand" {
-  keepers = {
-    keep1 = "${var.var1}"
-    keep2 = "${var.var2}"
-  }
+data "aws_iam_account_alias" "current" {}
 
-  byte_length = 8
-}
-
-output "random" {
-  value = "${random_id.rand.keepers.keep1}"
+output "account_id" {
+  value = "${data.aws_iam_account_alias.current.account_alias}"
 }

@@ -1,2 +1,1 @@
-var1="teststage1"
-var2="teststage2"
+environment="therasec-stage"
