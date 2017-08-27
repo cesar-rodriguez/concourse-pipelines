@@ -7,12 +7,12 @@ set -e
 
 set -x
 mkdir -p ~/.aws
-echo -e '
+echo "
 [admin]
 aws_access_key_id = $(cat aws-creds/access_key)
 aws_secret_access_key = $(cat aws-creds/secret_key)
 aws_session_token = $(cat aws-creds/security_token)
-' > ~/.aws/credentials
+" > ~/.aws/credentials
 cat ~/.aws/credentials
 set +x
 
