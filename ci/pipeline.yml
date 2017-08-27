@@ -54,12 +54,7 @@ jobs:
           - name: aws-creds
           run:
             path: sh
-            args:
-            - -exc
-            - |
-              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq -r '.access_key' > aws-creds/access_key
-              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq -r '.secret_key' > aws-creds/secret_key
-              cat vault/aws/therasecaws/sts/aws-global-admin.json | jq -r '.security_token' > aws-creds/security_token
+            args: ["infrastructure-repo/ci/scripts/get_aws_credentials.sh"]
       - task: build
         config:
           platform: linux
