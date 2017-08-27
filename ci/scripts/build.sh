@@ -8,7 +8,6 @@ set -e
 # Get AWS credentials
 mkdir -p ~/.aws
 cp aws-creds/credentials ~/.aws/credentials
-cat ~/.aws/credentials
 
 # "Building" terraform
 errors=0
