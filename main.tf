@@ -2,6 +2,7 @@ variable "environment" {}
 
 provider "aws" {
   profile = "${var.environment}"
+  region  = "us-east-1"
 }
 
 data "aws_iam_account_alias" "current" {}
