@@ -35,7 +35,8 @@ jobs:
       - get: vault
         params:
           paths:
-            - aws/therasecaws/sts/aws-global-admin
+            - aws/therasec-stage/sts/aws-global-admin
+            - aws/therasec-prod/sts/aws-global-admin
       - get: infrastructure-repo
         passed: ["scan"]
         trigger: true
