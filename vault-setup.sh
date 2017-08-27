@@ -37,9 +37,9 @@ do
     echo "Create admin role"
     vault write aws/therasec-${AWS_PROFILE}/roles/aws-global-admin \
         arn=$(aws iam list-roles | jq -r '.Roles[] | select(.RoleName=="adfs-admin") | .Arn')
-    echo 'path "aws/therasec-${AWS_PROFILE}/sts/aws-global-admin"{
-        capabilities = ["read"]
-    }' | vault policy-write aws-sts-therasec-${AWS_PROFILE}-admin -
+    echo "path \"aws/therasec-${AWS_PROFILE}/sts/aws-global-admin\" {
+        capabilities = [\"read\"]
+    }" | vault policy-write aws-sts-therasec-${AWS_PROFILE}-admin -
 done
 
 
