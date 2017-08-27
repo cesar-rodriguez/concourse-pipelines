@@ -50,6 +50,7 @@ jobs:
             source: {repository: digitalgenius/alpine-jq-git, tag: "latest"}
           inputs:
           - name: vault
+          - name: infrastructure-repo
           outputs:
           - name: aws-creds
           run:
