@@ -15,4 +15,4 @@ do
     aws_session_token = $(cat vault/aws/$env/sts/aws-global-admin.json | jq -r '.security_token')
     " >> aws-creds/credentials
 done
-cat aws-creds/credentials
+
