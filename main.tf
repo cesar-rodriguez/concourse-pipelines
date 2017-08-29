@@ -1,11 +1,11 @@
 terraform {
   backend "s3" {
-    bucket     = "therasec-state-bucket"
-    region     = "us-east-1"
-    encrypt    = "true"
-    acl        = "private"
-    lock_table = "therasec-state-bucket"
-    profile    = "therasec-prod"
+    bucket         = "therasec-state-bucket"
+    region         = "us-east-1"
+    encrypt        = "true"
+    acl            = "private"
+    dynamodb_table = "therasec-state-bucket"
+    profile        = "therasec-prod"
   }
 }
 
