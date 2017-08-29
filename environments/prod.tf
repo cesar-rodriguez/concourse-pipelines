@@ -1,1 +1,1 @@
-test = 1
+key = "terraform-pipeline-prod.tfstate"

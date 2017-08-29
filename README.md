@@ -45,7 +45,6 @@ The provision step automatically bumps patch version number (e.g. 0.0.1 -> 0.0.2
 
 To do
 ======
-- Use terraform code with S3 remote backend
 - Use [github-status-resource](https://github.com/dpb587/github-status-resource)
 - Trigger pipeline through PR
 - Add job for testing
