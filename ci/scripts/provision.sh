@@ -4,6 +4,12 @@
 #
 
 set -e
+
+# Get AWS credentials
+mkdir -p ~/.aws
+cp aws-creds/credentials ~/.aws/credentials
+
+# Provisioning infrastructure
 tar -xzf infrastructure-repo-artifacts/terraform-plan-$(cat infrastructure-repo-artifacts/version).tgz
 for env in $(ls terraform-plan-out)
 do

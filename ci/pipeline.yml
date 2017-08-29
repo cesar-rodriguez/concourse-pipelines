@@ -80,12 +80,31 @@ jobs:
     public: true
     serial_groups: [version]
     plan:
+      - get: vault
+        params:
+          paths:
+            - aws/therasec-stage/sts/aws-global-admin
+            - aws/therasec-prod/sts/aws-global-admin
       - get: infrastructure-repo
         passed: ["build"]
       - get: infrastructure-repo-artifacts
         passed: ["build"]
       - get: version
         params: {bump: final}
+      - task: get-credentials
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: digitalgenius/alpine-jq-git, tag: "latest"}
+          inputs:
+          - name: vault
+          - name: infrastructure-repo
+          outputs:
+          - name: aws-creds
+          run:
+            path: sh
+            args: ["infrastructure-repo/ci/scripts/get_aws_credentials.sh"]
       - task: provision
         config:
           platform: linux
@@ -93,6 +112,7 @@ jobs:
             type: docker-image
             source: {repository: hashicorp/terraform, tag: "light"}
           inputs:
+            - name: aws-creds
             - name: infrastructure-repo
             - name: infrastructure-repo-artifacts
             - name: version
