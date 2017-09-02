@@ -47,6 +47,11 @@ do
     fi
 done
 
+
+set +x
+ls terraform-plan-out
+set -x
+
 # The build fails if there are no changes in any environment
 # if [ $env_no_changes_count -gt 0 ] && [ $env_count -eq $env_no_changes_count ]
 # then
