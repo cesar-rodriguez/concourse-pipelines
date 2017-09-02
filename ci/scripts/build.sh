@@ -49,6 +49,7 @@ done
 
 
 set +x
+pwd
 ls terraform-plan-out
 set -x
 
