@@ -11,11 +11,8 @@ cp aws-creds/credentials ~/.aws/credentials
 
 # "Building" terraform
 errors=0
-env_count=$(expr 0)
-env_no_changes_count=$(expr 0)
 for env in $(ls infrastructure-repo/environments | grep '.tfvars' | cut -d '.' -f 1)
 do
-    env_count=$(expr $env_count + 1)
     echo "****************** BUILDING $env ******************"
     cp -R infrastructure-repo terraform-plan-out/$env
     cd terraform-plan-out/$env
@@ -32,7 +29,6 @@ do
     if [ $planexit -eq 0 ]
     then
         echo "BUILDING $env: terraform plan <no changes>\n\n"
-        env_no_changes_count=$(expr $env_no_changes_count + 1)
         cd ../../
         rm -rf $env
     elif [ $planexit -eq 1 ]
@@ -52,11 +48,11 @@ do
 done
 
 # The build fails if there are no changes in any environment
-if [ $env_no_changes_count -gt 0 ] && [ $env_count -eq $env_no_changes_count ]
-then
-    echo "There are no changes in any environment"
-    exit 1
-fi
+# if [ $env_no_changes_count -gt 0 ] && [ $env_count -eq $env_no_changes_count ]
+# then
+#     echo "There are no changes in any environment"
+#     exit 1
+# fi
 
 if [ $errors -eq 0 ]
 then
