@@ -5,6 +5,8 @@
 
 set -e
 
+RED='\033[0;31m'
+
 # Get AWS credentials
 mkdir -p ~/.aws
 cp aws-creds/credentials ~/.aws/credentials
@@ -55,7 +57,7 @@ done
 no_changes=$(ls terraform-plan-out | wc -l)
 if [ $no_changes -eq 0 ]
 then
-    echo "There are no changes in any environment"
+    echo -e "${RED}There are no changes in any environment"
     exit 1
 fi
 
