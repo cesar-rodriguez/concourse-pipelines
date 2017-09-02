@@ -51,4 +51,5 @@ To do
 - Better static code analysis. Should capture any issues found as github issues
 - Email notifications
 - Post provisioning smoke tests
+- Add terraform provider to docker images
 
