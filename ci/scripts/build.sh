@@ -29,36 +29,35 @@ do
     if [ $planexit -eq 0 ]
     then
         echo "BUILDING $env: terraform plan <no changes>\n\n"
-        cd ../../
+        cd ../
         rm -rf $env
+        cd ../
+        echo
+        echo
     elif [ $planexit -eq 1 ]
     then
         echo "BUILDING $env: terraform plan <error>"
         cat tfplan.txt
-        echo
-        echo
         errors=1
+        cd ../../
+        echo
+        echo
     else
         echo "BUILDING $env: terraform plan <diff>"
         cat tfplan.txt
-        echo
-        echo
         cd ../../
+        echo
+        echo
     fi
 done
 
-
-set +x
-pwd
-ls terraform-plan-out
-set -x
-
 # The build fails if there are no changes in any environment
-# if [ $env_no_changes_count -gt 0 ] && [ $env_count -eq $env_no_changes_count ]
-# then
-#     echo "There are no changes in any environment"
-#     exit 1
-# fi
+no_changes=$(ls terraform-plan-out | wc -l)
+if [ $no_changes -eq 0 ]
+then
+    echo "There are no changes in any environment"
+    exit 1
+fi
 
 if [ $errors -eq 0 ]
 then
