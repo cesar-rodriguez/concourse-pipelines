@@ -1,1 +1,1 @@
-key = "terraform-pipeline-prod.tfstate"
+key = "terraform-pipeline-stage.tfstate"
