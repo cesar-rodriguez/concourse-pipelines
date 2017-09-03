@@ -5,43 +5,54 @@ jobs:
     plan:
     - get: infrastructure-repo
       trigger: true
-    - task: terraform-format
-      config:
-        platform: linux
-        image_resource:
-          type: docker-image
-          source: {repository: hashicorp/terraform, tag: "light"}
-        inputs:
-          - name: infrastructure-repo
-        run:
-          path: sh
-          args: ["infrastructure-repo/ci/scripts/format.sh"]
-    - task: tflint
-      config:
-        platform: linux
-        image_resource:
-          type: docker-image
-          source: {repository: wata727/tflint, tag: "latest"}
-        inputs:
-          - name: infrastructure-repo
-        run:
-          path: sh
-          args: ["infrastructure-repo/ci/scripts/scan.sh"]
+    - put: commit-status
+      params:
+        commit: infrastructure-repo
+        state: pending
+    - aggregate:
+      - task: terraform-format
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: hashicorp/terraform, tag: "light"}
+          inputs:
+            - name: infrastructure-repo
+          run:
+            path: sh
+            args: ["infrastructure-repo/ci/scripts/format.sh"]
+      - task: tflint
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: wata727/tflint, tag: "latest"}
+          inputs:
+            - name: infrastructure-repo
+          run:
+            path: sh
+            args: ["infrastructure-repo/ci/scripts/scan.sh"]
+    on_failure:
+      put: commit-status
+      params:
+        commit: infrastructure-repo
+        state: failure
 
   - name: build
     public: true
     serial_groups: [version]
     plan:
-      - get: vault
-        params:
-          paths:
-            - aws/therasec-stage/sts/aws-global-admin
-            - aws/therasec-prod/sts/aws-global-admin
-      - get: infrastructure-repo
-        passed: ["scan"]
-        trigger: true
-      - get: version
-        params: {pre: rc}
+      - aggregate:
+        - get: vault
+          params:
+            paths:
+              - aws/therasec-stage/sts/aws-global-admin
+              - aws/therasec-prod/sts/aws-global-admin
+        - get: infrastructure-repo
+          passed: ["scan"]
+          trigger: true
+        - get: version
+          params: {pre: rc}
       - task: get-credentials
         config:
           platform: linux
@@ -75,22 +86,28 @@ jobs:
         params: {file: terraform-plan-out/terraform-plan-*.tgz}
       - put: version
         params: {file: version/number}
+    on_failure:
+      put: commit-status
+      params:
+        commit: infrastructure-repo
+        state: failure
 
   - name: provision
     public: true
     serial_groups: [version]
     plan:
-      - get: vault
-        params:
-          paths:
-            - aws/therasec-stage/sts/aws-global-admin
-            - aws/therasec-prod/sts/aws-global-admin
-      - get: infrastructure-repo
-        passed: ["build"]
-      - get: infrastructure-repo-artifacts
-        passed: ["build"]
-      - get: version
-        params: {bump: final}
+      - aggregate:
+        - get: vault
+          params:
+            paths:
+              - aws/therasec-stage/sts/aws-global-admin
+              - aws/therasec-prod/sts/aws-global-admin
+        - get: infrastructure-repo
+          passed: ["build"]
+        - get: infrastructure-repo-artifacts
+          passed: ["build"]
+        - get: version
+          params: {bump: final}
       - task: get-credentials
         config:
           platform: linux
@@ -155,8 +172,23 @@ resources:
   type: git
   source:
     uri: ((github-uri))
-    branch: master
+    branch: ((github-repo-branch))
     private_key: ((github-private-key))
+
+- name: commit-status
+  type: github-status
+  source:
+    repository: ((github-org))/((github-repo))
+    access_token: ((github-access-token))
+    branch: ((github-repo-branch))
+    context: concourse-ci
+
+- name: release
+  type: github-release
+  source:
+    owner: ((github-org))
+    repository: ((github-repo))
+    access_token: ((github-access-token))
 
 - name: version
   type: semver
@@ -176,13 +208,6 @@ resources:
     access_key_id: ((s3-access-key-id))
     secret_access_key: ((s3-secret-access-key))
 
-- name: release
-  type: github-release
-  source:
-    owner: ((github-org))
-    repository: ((github-repo))
-    access_token: ((github-access-token))
-
 - name: vault
   type: vault
   source:
@@ -197,3 +222,9 @@ resource_types:
     source:
       repository: docurated/concourse-vault-resource
       tag: latest
+
+  - name: "github-status"
+    type: "docker-image"
+    source:
+      repository: "dpb587/github-status-resource"
+      tag: "master"
