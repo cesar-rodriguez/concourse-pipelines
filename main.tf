@@ -10,19 +10,27 @@ terraform {
 }
 
 variable "environment" {}
-variable "trigger_change" {}
+variable "vpc_id" {}
+variable "port" {}
 
 provider "aws" {
   profile = "${var.environment}"
   region  = "us-east-1"
 }
 
-data "aws_iam_account_alias" "current" {}
+resource "aws_security_group" "sg" {
+  name        = "test"
+  description = "test security group"
+  vpc_id      = "${var.vpc_id}"
 
-output "account_id" {
-  value = "${data.aws_iam_account_alias.current.account_alias}"
+  ingress {
+    from_port   = "${var.port}"
+    to_port     = "${var.port}"
+    protocol    = "-1"
+    cidr_blocks = ["192.168.1.1/32"]
+  }
 }
 
-output "trigger_change" {
-  value = "${var.trigger_change}"
+output "id" {
+  value = "${aws_security_group.sg.id}"
 }

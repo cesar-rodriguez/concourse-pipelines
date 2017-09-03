@@ -1,2 +1,3 @@
 environment="therasec-prod"
-trigger_change="1"
+port="1"
+vpc_id="vpc-14595772"

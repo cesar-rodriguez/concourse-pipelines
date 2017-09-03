@@ -1,2 +1,3 @@
 environment="therasec-stage"
-trigger_change="1"
+port="1"
+vpc_id="vpc-7a2f671e"
