@@ -237,7 +237,7 @@ resources:
   source:
     smtp:
       host: ((smtp-host))
-      port: "((smtp-port))"
+      port: ((smtp-port))
       username: ((smtp-username))
       password: ((smtp-password))
     from: ((email-from))

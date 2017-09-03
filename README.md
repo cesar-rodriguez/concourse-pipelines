@@ -45,7 +45,6 @@ The provision step automatically bumps patch version number (e.g. 0.0.1 -> 0.0.2
 
 To do
 ======
-- Email notifications
 - Trigger pipeline through PR
 - Add job for testing
 - Better static code analysis. Should capture any issues found as github issues
