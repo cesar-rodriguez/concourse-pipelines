@@ -91,6 +91,11 @@ jobs:
       params:
         commit: infrastructure-repo
         state: failure
+    on_success:
+      put: commit-status
+      params:
+        commit: infrastructure-repo
+        state: success
 
   - name: provision
     public: true
@@ -144,6 +149,12 @@ jobs:
         params:
           name: release/name
           tag:  release/tag
+    on_failure:
+      put: commit-status
+      params:
+        commit: infrastructure-repo
+        state: error
+
 
   - name: bump-major
     serial_groups: [version]
