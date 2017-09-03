@@ -1,3 +1,3 @@
 environment="therasec-prod"
-port="2"
+port="1"
 vpc_id="vpc-14595772"
