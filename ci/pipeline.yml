@@ -92,10 +92,15 @@ jobs:
         commit: infrastructure-repo
         state: failure
     on_success:
-      put: commit-status
-      params:
-        commit: infrastructure-repo
-        state: success
+      do:
+        - put: commit-status
+          params:
+            commit: infrastructure-repo
+            state: success
+        - put: send-email
+          params:
+            subject_text: "Build finished: ${BUILD_PIPELINE_NAME}/${BUILD_JOB_NAME}/${BUILD_NAME}"
+            body_text: "Build finished: ${ATC_EXTERNAL_URL}/teams/main/pipelines/${BUILD_PIPELINE_NAME}/jobs/${BUILD_JOB_NAME}/builds/${BUILD_NAME}"
 
   - name: provision
     public: true
@@ -227,6 +232,17 @@ resources:
     role_id: ((vault-role-id))
     secret_id: ((vault-secret-id))
 
+- name: send-email
+  type: email
+  source:
+    smtp:
+      host: ((smtp-host))
+      port: "((smtp-port))"
+      username: ((smtp-username))
+      password: ((smtp-password))
+    from: ((email-from))
+    to: [ ((email-from)) ]
+
 resource_types:
   - name: vault
     type: docker-image
@@ -234,8 +250,13 @@ resource_types:
       repository: docurated/concourse-vault-resource
       tag: latest
 
-  - name: "github-status"
-    type: "docker-image"
+  - name: github-status
+    type: docker-image
     source:
-      repository: "dpb587/github-status-resource"
-      tag: "master"
+      repository: dpb587/github-status-resource
+      tag: master
+
+  - name: email
+    type: docker-image
+    source:
+      repository: pcfseceng/email-resource
