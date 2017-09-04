@@ -3,6 +3,7 @@
 # Verify if terraform templates are formatted
 #
 
+# Checking if test is going to be performed against pull request or main repo
 ls pull-request &>/dev/null
 if [ $? -eq 0 ]
 then
@@ -21,7 +22,7 @@ GREEN='\033[0;32m'
 
 cd $TEST_DIR
 
-# Check if code is properly formatted
+# Testing if code is properly formatted
 format_status=$(terraform fmt | wc -l)
 if [ $format_status -gt 0 ]
 then
