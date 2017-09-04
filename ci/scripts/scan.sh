@@ -3,9 +3,21 @@
 # Runs tflint against code
 #
 
+# Checking if test is going to be performed against pull request or main repo
+ls pull-request &>/dev/null
+if [ $? -eq 0 ]
+then
+    echo "Evaluating pull-request"
+    export TEST_DIR=pull-request
+    echo "concourse-ci tflint test failed. Please fix any issues found." > pr-comment/comment
+else
+    echo "Evaluating infrastructure-repo"
+    export TEST_DIR=infrastructure-repo
+fi
+
 set -e
 
-cd infrastructure-repo
+cd $TEST_DIR
 
 # "Scanning" terraform
 for env in $(ls environments | grep '.tfvars')
