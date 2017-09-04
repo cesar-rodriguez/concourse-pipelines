@@ -45,30 +45,56 @@ jobs:
     - get: pull-request
       trigger: true
       version: every
-    - aggregate:
-      - task: terraform-format
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: hashicorp/terraform, tag: "light"}
-          inputs:
-            - name: infrastructure-repo
-            - name: pull-request
-          run:
-            path: sh
-            args: ["infrastructure-repo/ci/scripts/format.sh"]
-      - task: tflint
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: wata727/tflint, tag: "latest"}
-          inputs:
-            - name: infrastructure-repo
-          run:
-            path: sh
-            args: ["infrastructure-repo/ci/scripts/scan.sh"]
+    - put: pull-request
+      params:
+        path: pull-request
+        status: pending
+    - task: terraform-format
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: {repository: hashicorp/terraform, tag: "light"}
+        inputs:
+          - name: infrastructure-repo
+          - name: pull-request
+        outputs:
+          - name: pr-comment
+        run:
+          path: sh
+          args: ["infrastructure-repo/ci/scripts/format.sh"]
+      on_failure:
+        put: pull-request
+        params:
+          path: pull-request
+          status: failure
+          context: terraform-format
+          comment: "pr-comment/comment"
+    - task: tflint
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: {repository: wata727/tflint, tag: "latest"}
+        inputs:
+          - name: infrastructure-repo
+        outputs:
+          - name: pr-comment
+        run:
+          path: sh
+          args: ["infrastructure-repo/ci/scripts/scan.sh"]
+      on_failure:
+        put: pull-request
+        params:
+          path: pull-request
+          status: failure
+          context: tflint
+          comment: "pr-comment/comment"
+    on_success:
+      put: pull-request
+      params:
+        path: pull-request
+        status: success
 
   - name: build
     public: true

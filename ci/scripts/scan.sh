@@ -9,6 +9,7 @@ if [ $? -eq 0 ]
 then
     echo "Evaluating pull-request"
     export TEST_DIR=pull-request
+    echo "concourse-ci tflint test failed. Please fix any issues found." > pr-comment/comment
 else
     echo "Evaluating infrastructure-repo"
     export TEST_DIR=infrastructure-repo
