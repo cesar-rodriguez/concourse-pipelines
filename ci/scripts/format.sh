@@ -9,7 +9,9 @@ if [ $? -eq 0 ]
 then
     echo "Evaluating pull-request"
     export TEST_DIR=pull-request
-    echo "concourse-ci terraform-format test failed on $(cat pull-request/.git/id) commit $(git rev-parse HEAD | cut -c1-7). Please run \`terraform fmt\`." > pr-comment/comment
+    ls -al pull-request
+    #echo "concourse-ci terraform-format test failed on $(cat pull-request/.git/id) commit $(git rev-parse HEAD | cut -c1-7). Please run \`terraform fmt\`." > pr-comment/comment
+    echo "concourse-ci terraform-format test failed. Please run \`terraform fmt\`." > pr-comment/comment
 else
     echo "Evaluating infrastructure-repo"
     export TEST_DIR=infrastructure-repo
