@@ -19,7 +19,7 @@ provider "aws" {
 }
 
 resource "aws_security_group" "sg" {
-  name        = "test"
+  name = "test"
   description = "test security group"
   vpc_id      = "${var.vpc_id}"
 
