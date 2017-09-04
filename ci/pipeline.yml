@@ -42,7 +42,6 @@ jobs:
     public: true
     plan:
     - get: infrastructure-repo
-      trigger: true
     - get: pull-request
       trigger: true
       version: every
@@ -58,10 +57,18 @@ jobs:
             - name: pull-request
           run:
             path: sh
-            args:
-            - -exc
-            - |
-              cd pull-request && ls
+            args: ["infrastructure-repo/ci/scripts/format.sh"]
+      - task: tflint
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: wata727/tflint, tag: "latest"}
+          inputs:
+            - name: infrastructure-repo
+          run:
+            path: sh
+            args: ["infrastructure-repo/ci/scripts/scan.sh"]
 
   - name: build
     public: true
