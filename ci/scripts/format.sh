@@ -3,11 +3,13 @@
 # Verify if terraform templates are formatted
 #
 
-ls pull-request
+ls pull-request &>/dev/null
 if [ $? -eq 0 ]
 then
+    echo "Evaluating pull-request"
     export TEST_DIR=pull-request
 else
+    echo "Evaluating infrastructure-repo"
     export TEST_DIR=infrastructure-repo
 fi
 
