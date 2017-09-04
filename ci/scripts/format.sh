@@ -3,12 +3,21 @@
 # Verify if terraform templates are formatted
 #
 
+ls pull-request
+if [ $? -eq 0 ]
+then
+    export TEST_DIR=pull-request
+else
+    export TEST_DIR=infrastructure-repo
+fi
+
 set -e
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 
-cd infrastructure-repo
+
+cd $TEST_DIR
 
 # Check if code is properly formatted
 format_status=$(terraform fmt | wc -l)
