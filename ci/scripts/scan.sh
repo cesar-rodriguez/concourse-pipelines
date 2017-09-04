@@ -9,7 +9,9 @@ if [ $? -eq 0 ]
 then
     echo "Evaluating pull-request"
     export TEST_DIR=pull-request
-    echo "concourse-ci tflint test failed. Please fix any issues found." > pr-comment/comment
+    cd $TEST_DIR
+    echo "concourse-ci tflint test failed on this pull request's commit: $(git rev-parse HEAD | cut -c1-7). Please fix any issues found." > ../pr-comment/comment
+    cd ../
 else
     echo "Evaluating infrastructure-repo"
     export TEST_DIR=infrastructure-repo
