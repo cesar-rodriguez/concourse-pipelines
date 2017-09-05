@@ -68,7 +68,6 @@ jobs:
         params:
           path: pull-request
           status: failure
-          context: terraform-format
           comment: "pr-comment/comment"
     - task: tflint
       config:
@@ -88,7 +87,6 @@ jobs:
         params:
           path: pull-request
           status: failure
-          context: tflint
           comment: "pr-comment/comment"
     on_success:
       put: pull-request
