@@ -5,7 +5,6 @@ set -ex
 CONCOURSE_VERSION='v3.4.1'
 VAULT_VERSION='0.8.2'
 
-sudo apt-get update
 sudo apt-get install unzip
 sudo apt-get install jq
 
