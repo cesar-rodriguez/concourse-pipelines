@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ex
+set -e
 
 VAULT_ADDR='192.168.100.4:8200'
 VAULT_TOKEN='1234'
