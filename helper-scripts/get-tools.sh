@@ -5,8 +5,8 @@ set -ex
 CONCOURSE_VERSION='v3.4.1'
 VAULT_VERSION='0.8.2'
 
-sudo apt-get install unzip
-sudo apt-get install jq
+sudo apt-get -y install unzip
+sudo apt-get -y install jq
 
 echo "Downloading Concourse..."
 wget https://github.com/concourse/concourse/releases/download/${CONCOURSE_VERSION}/concourse_linux_amd64
