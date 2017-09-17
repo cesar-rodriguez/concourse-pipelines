@@ -6,7 +6,13 @@ VAULT_ADDR='192.168.100.4:8200'
 VAULT_TOKEN='1234'
 
 echo "Starting dev Vault instance..."
-vault server -dev -dev-root-token-id=${VAULT_TOKEN} -dev-listen-address=${VAULT_ADDR} &>/dev/null &
+echo "start on runlevel [2345]
+stop on shutdown
+
+exec vault server -dev \
+  -dev-root-token-id=${VAULT_TOKEN} \
+  -dev-listen-address=${VAULT_ADDR}" > /etc/init/vault.conf
+sudo service vault start
 
 echo "Authenticating to Vault..."
 export VAULT_ADDR=http://${VAULT_ADDR}
