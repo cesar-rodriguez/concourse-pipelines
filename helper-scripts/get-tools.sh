@@ -24,12 +24,6 @@ if [ "v$SYS_CONCOURSE_VERSION" != "$CONCOURSE_VERSION" ]; then
     get_concourse
 fi
 
-echo "Installing unzip..."
-which unzip || sudo apt-get -y install unzip
-
-echo "Installing jq..."
-which jq || sudo apt-get -y install jq
-
 echo "Installing Vault..."
 which vault || get_vault
 
