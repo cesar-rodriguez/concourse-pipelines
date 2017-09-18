@@ -1,7 +1,7 @@
 $setup = <<EOF
 cd /home/vagrant
 git clone https://github.com/cesar-rodriguez/terraform-pipeline.git
-cd terraform-pipeline/vagrant
+cd terraform-pipeline/vagrant-dependencies
 ./get-tools.sh
 sudo mv upstart/* /etc/init
 sudo service concourse-web restart
