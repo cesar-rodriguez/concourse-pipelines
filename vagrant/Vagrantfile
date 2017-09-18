@@ -1,9 +1,10 @@
 $setup = <<EOF
 cd /home/vagrant
 git clone https://github.com/cesar-rodriguez/terraform-pipeline.git
-cd terraform-pipeline/helper-scripts
+cd terraform-pipeline/vagrant
 ./get-tools.sh
-./go-vault.sh
+sudo mv upstart/* /etc/init
+sudo service concourse-web restart
 EOF
 
 Vagrant.configure("2") do |config|
