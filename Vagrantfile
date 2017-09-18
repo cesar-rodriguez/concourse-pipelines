@@ -1,7 +1,7 @@
 $setup = <<EOF
-cd vagrant/scripts
+cd /vagrant/scripts
 ./get-tools.sh
-sudo mv upstart/* /etc/init
+sudo cp upstart/* /etc/init
 sudo service concourse-web restart
 EOF
 
