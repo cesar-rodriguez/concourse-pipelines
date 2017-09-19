@@ -2,15 +2,24 @@ $setup = <<EOF
 cd /vagrant/scripts
 ./get-tools.sh
 sudo cp upstart/* /etc/init
-sudo service concourse-web restart
 EOF
 
 Vagrant.configure("2") do |config|
+
+  # Using concourse lite as base VM https://github.com/concourse/concourse-lite
   config.vm.box = "concourse/lite"
-  config.vm.provision "file", source: "~/.aws/credentials", destination: "~/.aws/credentials"
+
+  # Installs dependencies
   config.vm.provision "shell", privileged: false, inline: "sudo apt-get -y update > /dev/null && sudo apt-get -y install unzip jq"
+
+  # Runs scripts that download/configure Concourse and Vault
   config.vm.provision "shell", privileged: false, inline: $setup
-  config.vm.provider "virtualbox" do |vb|
-    vb.customize [ "guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/ — timesync-set-threshold", 10000 ]
+
+  # Reload VM
+  config.vm.provision :reload
+
+  # Sync time with host
+  config.vm.provider 'virtualbox' do |vb|
+    vb.customize [ "guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000 ]
   end
 end
