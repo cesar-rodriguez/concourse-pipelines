@@ -3,7 +3,7 @@
 # Retrieves AWS STS tokens from Vault and creates a credentials file
 #
 
-set -e
+set -ex
 
 environments=$(ls vault/aws)
 for env in $environments
