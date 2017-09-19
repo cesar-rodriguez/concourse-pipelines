@@ -1,86 +1,91 @@
 ---
-# Non-native resource types imported from Docker Hub
-# http://concourse.ci/configuring-resource-types.html
+# Community resources: http://concourse.ci/configuring-resource-types.html
 resource_types:
+  # Fetches secrets custom paths in Vault: https://github.com/Docurated/concourse-vault-resource
   - name: vault
     type: docker-image
     source:
       repository: docurated/concourse-vault-resource
       tag: latest
 
+  # Interacts with GitHub commit status: https://github.com/dpb587/github-status-resource
   - name: github-status
     type: docker-image
     source:
       repository: dpb587/github-status-resource
       tag: master
 
+  # Sends status emails: https://github.com/pivotal-cf/email-resource
   - name: email
     type: docker-image
     source:
       repository: pcfseceng/email-resource
 
 
-# All resources used by the pipeline
-# http://concourse.ci/configuring-resources.html
+# Resources used by the pipeline: http://concourse.ci/configuring-resources.html
 resources:
+  # GitHub repository containing terraform templates
   - name: infrastructure-repo
     type: git
     source:
-      uri: ((github-uri))
-      branch: ((github-repo-branch))
-      private_key: ((github-private-key))
+      uri: ((github.uri))
+      branch: ((github.branch))
+      private_key: ((github.private-key))
 
-  - name: commit-status
-    type: github-status
+  # GitHub containing CI scripts (e.g. this repo)
+  - name: ci-repo
+    type: git
     source:
-      repository: ((github-org))/((github-repo))
-      access_token: ((github-access-token))
-      branch: ((github-repo-branch))
-      context: concourse-ci
+      uri: https://github.com/cesar-rodriguez/terraform-pipeline.git
 
-  - name: release
-    type: github-release
-    source:
-      owner: ((github-org))
-      repository: ((github-repo))
-      access_token: ((github-access-token))
+  # Status of commit going through the pipeline
+#  - name: commit-status
+#    type: github-status
+#    source:
+#      repository: ((github.org))/((github.repo))
+#      access_token: ((github.personal-access-token))
+#      branch: ((github.branch))
+#      context: concourse-ci
 
+  # A GitHub release is created with every version change
+#  - name: release
+#    type: github-release
+#    source:
+#      owner: ((github.org))
+#      repository: ((github.repo))
+#      access_token: ((github.personal-access-token))
+
+  # Tracks the semantic version of the infrastructure repository
   - name: version
     type: semver
     source:
       driver: git
       initial_version: 0.0.1
-      uri: ((github-uri))
+      uri: ((github.uri))
       branch: version
       file: version
       private_key: ((github-private-key))
 
-  - name: infrastructure-repo-artifacts
-    type: s3
-    source:
-      bucket: terraform-pipeline-rc
-      regexp: terraform-plan-(.*).tgz
-      access_key_id: ((s3-access-key-id))
-      secret_access_key: ((s3-secret-access-key))
+  # Sends email when build/test are sucessful
+#  - name: send-email
+#    type: email
+#    source:
+#      smtp:
+#        host: ((smtp-host))
+#        port: ((smtp-port))
+#        username: ((smtp-username))
+#        password: ((smtp-password))
+#      from: ((email-from))
+#      to: [ ((email-from)) ]
 
+  # Interacting with vault to get AWS credentials
   - name: vault
     type: vault
     source:
-      url: ((vault-addr))
+      url: ((vault-address))
       auth_method: AppRole
       role_id: ((vault-role-id))
       secret_id: ((vault-secret-id))
-
-  - name: send-email
-    type: email
-    source:
-      smtp:
-        host: ((smtp-host))
-        port: ((smtp-port))
-        username: ((smtp-username))
-        password: ((smtp-password))
-      from: ((email-from))
-      to: [ ((email-from)) ]
 
 
 # Jobs to be executed against the resources
@@ -91,122 +96,20 @@ jobs:
     public: true
     serial_groups: [version]
     plan:
+      # Running get resources in parallel.
       - aggregate:
-        - get: vault
-          params:
-            paths:
-              - aws/therasec-stage/sts/aws-global-admin
-              - aws/therasec-prod/sts/aws-global-admin
         - get: infrastructure-repo
-          passed: ["scan"]
           trigger: true
+        - get: ci-repo
         - get: version
           params: {pre: rc}
-      - task: get-credentials
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: digitalgenius/alpine-jq-git, tag: "latest"}
-          inputs:
-          - name: vault
-          - name: infrastructure-repo
-          outputs:
-          - name: aws-creds
-          run:
-            path: sh
-            args: ["infrastructure-repo/ci/scripts/get_aws_credentials.sh"]
-      - task: build
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: hashicorp/terraform, tag: "light"}
-          inputs:
-            - name: aws-creds
-            - name: infrastructure-repo
-            - name: version
-          outputs:
-            - name: terraform-plan-out
-          run:
-            path: sh
-            args: ["infrastructure-repo/ci/scripts/build.sh"]
-      - put: infrastructure-repo-artifacts
-        params: {file: terraform-plan-out/terraform-plan-*.tgz}
-      - put: version
-        params: {file: version/number}
-    on_failure:
-      put: commit-status
-      params:
-        commit: infrastructure-repo
-        state: failure
-    on_success:
-      do:
-        - put: commit-status
-          params:
-            commit: infrastructure-repo
-            state: success
-        - put: send-email
-          params:
-            subject_text: "[concourse-ci] ((github-org))/((github-repo)) build successful: ${BUILD_PIPELINE_NAME}/${BUILD_JOB_NAME}/${BUILD_NAME}"
-            body_text: "Click here to provision resources: ${ATC_EXTERNAL_URL}/teams/main/pipelines/${BUILD_PIPELINE_NAME}/jobs/provision"
-
-  # test - Perform "unit tests" on terraform resources for security/ops best practices using terrascan
-  - name: test
-    public: true
-    plan:
-    - get: infrastructure-repo
-      trigger: true
-    - put: commit-status
-      params:
-        commit: infrastructure-repo
-        state: pending
-    - aggregate:
-      - task: terraform-format
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: hashicorp/terraform, tag: "light"}
-          inputs:
-            - name: infrastructure-repo
-          run:
-            path: sh
-            args: ["infrastructure-repo/ci/scripts/format.sh"]
-      - task: tflint
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: wata727/tflint, tag: "latest"}
-          inputs:
-            - name: infrastructure-repo
-          run:
-            path: sh
-            args: ["infrastructure-repo/ci/scripts/scan.sh"]
-    on_failure:
-      put: commit-status
-      params:
-        commit: infrastructure-repo
-        state: failure
-
-  # provision - Gets the built terraform plan form S3 and privisions the infrastructure
-  - name: provision
-    public: true
-    serial_groups: [version]
-    plan:
-      - aggregate:
+        # The paths where Vault resource needs to read STS tokens needs to be provided
         - get: vault
           params:
             paths:
-              - aws/therasec-stage/sts/aws-global-admin
-              - aws/therasec-prod/sts/aws-global-admin
-        - get: infrastructure-repo
-          passed: ["build"]
-        - get: infrastructure-repo-artifacts
-          passed: ["build"]
-        - get: version
-          params: {bump: final}
+              - ((vault-stage-sts-path))
+              - ((vault-prod-sts-path))
+      # Generates AWS credentials file: http://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html
       - task: get-credentials
         config:
           platform: linux
@@ -215,61 +118,166 @@ jobs:
             source: {repository: digitalgenius/alpine-jq-git, tag: "latest"}
           inputs:
           - name: vault
-          - name: infrastructure-repo
+          - name: ci-repo
           outputs:
           - name: aws-creds
           run:
             path: sh
-            args: ["infrastructure-repo/ci/scripts/get_aws_credentials.sh"]
-      - task: provision
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: hashicorp/terraform, tag: "light"}
-          inputs:
-            - name: aws-creds
-            - name: infrastructure-repo
-            - name: infrastructure-repo-artifacts
-            - name: version
-          outputs:
-            - name: release
-          run:
-            path: sh
-            args: ["infrastructure-repo/ci/scripts/provision.sh"]
-      - put: version
-        params: { bump: final }
-      - put: release
-        params:
-          name: release/name
-          tag:  release/tag
-    on_failure:
-      put: commit-status
-      params:
-        commit: infrastructure-repo
-        state: error
+            args: ["ci-repo/scripts/ci/get_aws_credentials.sh"]
+      # Runs terraform plan and stores output in S3
+#      - task: build
+#        config:
+#          platform: linux
+#          image_resource:
+#            type: docker-image
+#            source: {repository: hashicorp/terraform, tag: "light"}
+#          inputs:
+#            - name: aws-creds
+#            - name: infrastructure-repo
+#            - name: version
+#          outputs:
+#            - name: terraform-plan-out
+#          run:
+#            path: sh
+#            args: ["infrastructure-repo/ci/scripts/build.sh"]
+#     - put: version
+#        params: {file: version/number}
+#    on_failure:
+#      put: commit-status
+#      params:
+#        commit: infrastructure-repo
+#        state: failure
+#    on_success:
+#      do:
+#        - put: commit-status
+#          params:
+#            commit: infrastructure-repo
+#            state: success
+#        - put: send-email
+#          params:
+#            subject_text: "[concourse-ci] ((github-org))/((github-repo)) build successful: ${BUILD_PIPELINE_NAME}/${BUILD_JOB_NAME}/${BUILD_NAME}"
+#            body_text: "Click here to provision resources: ${ATC_EXTERNAL_URL}/teams/main/pipelines/${BUILD_PIPELINE_NAME}/jobs/provision"
+
+  # test - Perform "unit tests" on terraform resources for security/ops best practices using terrascan
+#  - name: test
+#    public: true
+#    plan:
+#    - get: infrastructure-repo
+#      passed: ["build"]
+#      trigger: true
+#    - put: commit-status
+#      params:
+#        commit: infrastructure-repo
+#        state: pending
+#    - aggregate:
+#      - task: terraform-format
+#        config:
+#          platform: linux
+#          image_resource:
+#            type: docker-image
+#            source: {repository: hashicorp/terraform, tag: "light"}
+#          inputs:
+#            - name: infrastructure-repo
+#          run:
+#            path: sh
+#            args: ["infrastructure-repo/ci/scripts/format.sh"]
+#      - task: tflint
+#        config:
+#          platform: linux
+#          image_resource:
+#            type: docker-image
+#            source: {repository: wata727/tflint, tag: "latest"}
+#          inputs:
+#            - name: infrastructure-repo
+#          run:
+#            path: sh
+#            args: ["infrastructure-repo/ci/scripts/scan.sh"]
+#    on_failure:
+#      put: commit-status
+#      params:
+#        commit: infrastructure-repo
+#        state: failure
+
+  # provision - Gets the built terraform plan form S3 and privisions the infrastructure
+#  - name: provision
+#    public: true
+#    serial_groups: [version]
+#    plan:
+#      - aggregate:
+#        - get: vault
+#          params:
+#            paths:
+#              - aws/therasec-stage/sts/aws-global-admin
+#              - aws/therasec-prod/sts/aws-global-admin
+#        - get: infrastructure-repo
+#          passed: ["build"]
+#        - get: infrastructure-repo-artifacts
+#          passed: ["build"]
+#        - get: version
+#          params: {bump: final}
+#      - task: get-credentials
+#        config:
+#          platform: linux
+#          image_resource:
+#            type: docker-image
+#            source: {repository: digitalgenius/alpine-jq-git, tag: "latest"}
+#          inputs:
+#          - name: vault
+#          - name: infrastructure-repo
+#          outputs:
+#          - name: aws-creds
+#          run:
+#            path: sh
+#            args: ["infrastructure-repo/ci/scripts/get_aws_credentials.sh"]
+#      - task: provision
+#        config:
+#          platform: linux
+#          image_resource:
+#            type: docker-image
+#            source: {repository: hashicorp/terraform, tag: "light"}
+#          inputs:
+#            - name: aws-creds
+#            - name: infrastructure-repo
+#            - name: infrastructure-repo-artifacts
+#            - name: version
+#          outputs:
+#            - name: release
+#          run:
+#            path: sh
+#            args: ["infrastructure-repo/ci/scripts/provision.sh"]
+#      - put: version
+#        params: { bump: final }
+#      - put: release
+#        params:
+#          name: release/name
+#          tag:  release/tag
+#    on_failure:
+#      put: commit-status
+#      params:
+#        commit: infrastructure-repo
+#        state: error
 
 
   # Used for hotfixes. Automatically triggered
-  - name: bump-patch
-    serial_groups: [version]
-    plan:
-    - get: version
-      passed: [provision]
-      trigger: true
-    - put: version
-      params: {bump: patch, pre: rc}
+#  - name: bump-patch
+#    serial_groups: [version]
+#    plan:
+#    - get: version
+#      passed: [provision]
+#      trigger: true
+#    - put: version
+#      params: {bump: patch, pre: rc}
 
   # Used for changes that are backwards compatible. Needs to be manually triggered
-  - name: bump-minor
-    serial_groups: [version]
-    plan:
-    - put: version
-      params: {bump: minor}
+#  - name: bump-minor
+#    serial_groups: [version]
+#    plan:
+#    - put: version
+#      params: {bump: minor}
 
   # Used for breaking changes. Needs to be manually triggered
-  - name: bump-major
-    serial_groups: [version]
-    plan:
-    - put: version
-      params: {bump: major}
+#  - name: bump-major
+#    serial_groups: [version]
+#    plan:
+#    - put: version
+#      params: {bump: major}
