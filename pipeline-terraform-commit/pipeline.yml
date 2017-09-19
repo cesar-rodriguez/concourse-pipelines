@@ -1,99 +1,92 @@
 ---
+# Non-native resource types imported from Docker Hub
+# http://concourse.ci/configuring-resource-types.html
+resource_types:
+  - name: vault
+    type: docker-image
+    source:
+      repository: docurated/concourse-vault-resource
+      tag: latest
+
+  - name: github-status
+    type: docker-image
+    source:
+      repository: dpb587/github-status-resource
+      tag: master
+
+  - name: email
+    type: docker-image
+    source:
+      repository: pcfseceng/email-resource
+
+
+# All resources used by the pipeline
+# http://concourse.ci/configuring-resources.html
+resources:
+  - name: infrastructure-repo
+    type: git
+    source:
+      uri: ((github-uri))
+      branch: ((github-repo-branch))
+      private_key: ((github-private-key))
+
+  - name: commit-status
+    type: github-status
+    source:
+      repository: ((github-org))/((github-repo))
+      access_token: ((github-access-token))
+      branch: ((github-repo-branch))
+      context: concourse-ci
+
+  - name: release
+    type: github-release
+    source:
+      owner: ((github-org))
+      repository: ((github-repo))
+      access_token: ((github-access-token))
+
+  - name: version
+    type: semver
+    source:
+      driver: git
+      initial_version: 0.0.1
+      uri: ((github-uri))
+      branch: version
+      file: version
+      private_key: ((github-private-key))
+
+  - name: infrastructure-repo-artifacts
+    type: s3
+    source:
+      bucket: terraform-pipeline-rc
+      regexp: terraform-plan-(.*).tgz
+      access_key_id: ((s3-access-key-id))
+      secret_access_key: ((s3-secret-access-key))
+
+  - name: vault
+    type: vault
+    source:
+      url: ((vault-addr))
+      auth_method: AppRole
+      role_id: ((vault-role-id))
+      secret_id: ((vault-secret-id))
+
+  - name: send-email
+    type: email
+    source:
+      smtp:
+        host: ((smtp-host))
+        port: ((smtp-port))
+        username: ((smtp-username))
+        password: ((smtp-password))
+      from: ((email-from))
+      to: [ ((email-from)) ]
+
+
+# Jobs to be executed against the resources
+# http://concourse.ci/configuring-jobs.html
 jobs:
-  - name: scan
-    public: true
-    plan:
-    - get: infrastructure-repo
-      trigger: true
-    - put: commit-status
-      params:
-        commit: infrastructure-repo
-        state: pending
-    - aggregate:
-      - task: terraform-format
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: hashicorp/terraform, tag: "light"}
-          inputs:
-            - name: infrastructure-repo
-          run:
-            path: sh
-            args: ["infrastructure-repo/ci/scripts/format.sh"]
-      - task: tflint
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: wata727/tflint, tag: "latest"}
-          inputs:
-            - name: infrastructure-repo
-          run:
-            path: sh
-            args: ["infrastructure-repo/ci/scripts/scan.sh"]
-    on_failure:
-      put: commit-status
-      params:
-        commit: infrastructure-repo
-        state: failure
-
-  - name: scan-pr
-    public: true
-    plan:
-    - get: infrastructure-repo
-    - get: pull-request
-      trigger: true
-      version: every
-    - put: pull-request
-      params:
-        path: pull-request
-        status: pending
-    - task: terraform-format
-      config:
-        platform: linux
-        image_resource:
-          type: docker-image
-          source: {repository: hashicorp/terraform, tag: "light"}
-        inputs:
-          - name: infrastructure-repo
-          - name: pull-request
-        outputs:
-          - name: pr-comment
-        run:
-          path: sh
-          args: ["infrastructure-repo/ci/scripts/format.sh"]
-      on_failure:
-        put: pull-request
-        params:
-          path: pull-request
-          status: failure
-          comment: "pr-comment/comment"
-    - task: tflint
-      config:
-        platform: linux
-        image_resource:
-          type: docker-image
-          source: {repository: wata727/tflint, tag: "latest"}
-        inputs:
-          - name: infrastructure-repo
-        outputs:
-          - name: pr-comment
-        run:
-          path: sh
-          args: ["infrastructure-repo/ci/scripts/scan.sh"]
-      on_failure:
-        put: pull-request
-        params:
-          path: pull-request
-          status: failure
-          comment: "pr-comment/comment"
-    on_success:
-      put: pull-request
-      params:
-        path: pull-request
-        status: success
-
+  # Builds terraform plan output and stores it in S3
   - name: build
     public: true
     serial_groups: [version]
@@ -158,6 +151,46 @@ jobs:
             subject_text: "[concourse-ci] ((github-org))/((github-repo)) build successful: ${BUILD_PIPELINE_NAME}/${BUILD_JOB_NAME}/${BUILD_NAME}"
             body_text: "Click here to provision resources: ${ATC_EXTERNAL_URL}/teams/main/pipelines/${BUILD_PIPELINE_NAME}/jobs/provision"
 
+  # test - Perform "unit tests" on terraform resources for security/ops best practices using terrascan
+  - name: test
+    public: true
+    plan:
+    - get: infrastructure-repo
+      trigger: true
+    - put: commit-status
+      params:
+        commit: infrastructure-repo
+        state: pending
+    - aggregate:
+      - task: terraform-format
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: hashicorp/terraform, tag: "light"}
+          inputs:
+            - name: infrastructure-repo
+          run:
+            path: sh
+            args: ["infrastructure-repo/ci/scripts/format.sh"]
+      - task: tflint
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: wata727/tflint, tag: "latest"}
+          inputs:
+            - name: infrastructure-repo
+          run:
+            path: sh
+            args: ["infrastructure-repo/ci/scripts/scan.sh"]
+    on_failure:
+      put: commit-status
+      params:
+        commit: infrastructure-repo
+        state: failure
+
+  # provision - Gets the built terraform plan form S3 and privisions the infrastructure
   - name: provision
     public: true
     serial_groups: [version]
@@ -217,18 +250,7 @@ jobs:
         state: error
 
 
-  - name: bump-major
-    serial_groups: [version]
-    plan:
-    - put: version
-      params: {bump: major}
-
-  - name: bump-minor
-    serial_groups: [version]
-    plan:
-    - put: version
-      params: {bump: minor}
-
+  # Used for hotfixes. Automatically triggered
   - name: bump-patch
     serial_groups: [version]
     plan:
@@ -238,94 +260,16 @@ jobs:
     - put: version
       params: {bump: patch, pre: rc}
 
+  # Used for changes that are backwards compatible. Needs to be manually triggered
+  - name: bump-minor
+    serial_groups: [version]
+    plan:
+    - put: version
+      params: {bump: minor}
 
-resources:
-- name: infrastructure-repo
-  type: git
-  source:
-    uri: ((github-uri))
-    branch: ((github-repo-branch))
-    private_key: ((github-private-key))
-
-- name: commit-status
-  type: github-status
-  source:
-    repository: ((github-org))/((github-repo))
-    access_token: ((github-access-token))
-    branch: ((github-repo-branch))
-    context: concourse-ci
-
-- name: release
-  type: github-release
-  source:
-    owner: ((github-org))
-    repository: ((github-repo))
-    access_token: ((github-access-token))
-
-- name: pull-request
-  type: pull-request
-  source:
-    access_token: ((github-access-token))
-    private_key:  ((github-private-key))
-    repo: ((github-org))/((github-repo))
-    base: ((github-repo-branch))
-
-- name: version
-  type: semver
-  source:
-    driver: git
-    initial_version: 0.0.1
-    uri: ((github-uri))
-    branch: version
-    file: version
-    private_key: ((github-private-key))
-
-- name: infrastructure-repo-artifacts
-  type: s3
-  source:
-    bucket: terraform-pipeline-rc
-    regexp: terraform-plan-(.*).tgz
-    access_key_id: ((s3-access-key-id))
-    secret_access_key: ((s3-secret-access-key))
-
-- name: vault
-  type: vault
-  source:
-    url: ((vault-addr))
-    auth_method: AppRole
-    role_id: ((vault-role-id))
-    secret_id: ((vault-secret-id))
-
-- name: send-email
-  type: email
-  source:
-    smtp:
-      host: ((smtp-host))
-      port: ((smtp-port))
-      username: ((smtp-username))
-      password: ((smtp-password))
-    from: ((email-from))
-    to: [ ((email-from)) ]
-
-resource_types:
-  - name: vault
-    type: docker-image
-    source:
-      repository: docurated/concourse-vault-resource
-      tag: latest
-
-  - name: github-status
-    type: docker-image
-    source:
-      repository: dpb587/github-status-resource
-      tag: master
-
-  - name: pull-request
-    type: docker-image
-    source:
-      repository: jtarchie/pr
-
-  - name: email
-    type: docker-image
-    source:
-      repository: pcfseceng/email-resource
+  # Used for breaking changes. Needs to be manually triggered
+  - name: bump-major
+    serial_groups: [version]
+    plan:
+    - put: version
+      params: {bump: major}
