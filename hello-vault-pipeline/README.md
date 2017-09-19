@@ -1,4 +1,4 @@
-Hello Vault Pipeline
+Hello Vault - Pipeline
 =====================
 Basic pipeline used to test Concourse and Vault are configured properly. The pipeline will read a team level secret from Vault and echo it. By default, the secret should be placed at `concourse/TEAM/hello` and the pipeline will read the key named **value**.
 
