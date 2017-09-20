@@ -117,6 +117,7 @@ jobs:
             type: docker-image
             source: {repository: digitalgenius/alpine-jq-git, tag: "latest"}
           params:
+            DEBUG_MODE: ((debug-mode))
             PIPELINE_AWS_ROLE: ((vault-aws-role-name))
           inputs:
           - name: vault

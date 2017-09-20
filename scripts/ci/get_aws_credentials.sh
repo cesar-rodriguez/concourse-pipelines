@@ -3,7 +3,16 @@
 # Retrieves AWS STS tokens from Vault and creates a credentials file
 #
 
-set -ex
+set -e
+
+if [ ! -z ${DEBUG_MODE} ]
+then
+  if [ ${DEBUG_MODE} = "true" ]
+  then
+    echo "DEBUG Mode"
+    set -x
+  fi
+fi
 
 environments=$(ls vault/aws)
 for env in $environments
