@@ -143,23 +143,26 @@ jobs:
               path: sh
               args: ["ci-repo/scripts/ci/terraform_format.sh"]
       # Runs terraform plan and stores output in S3
-#      - task: build
-#        config:
-#          platform: linux
-#          image_resource:
-#            type: docker-image
-#            source: {repository: hashicorp/terraform, tag: "light"}
-#          inputs:
-#            - name: aws-creds
-#            - name: infrastructure-repo
-#            - name: version
-#          outputs:
-#            - name: terraform-plan-out
-#          run:
-#            path: sh
-#            args: ["infrastructure-repo/ci/scripts/build.sh"]
-#     - put: version
-#        params: {file: version/number}
+        - task: terraform-plan
+          config:
+            platform: linux
+            image_resource:
+              type: docker-image
+              source: {repository: hashicorp/terraform, tag: "light"}
+            params:
+              DEBUG_MODE: ((debug-mode))
+            inputs:
+              - name: aws-creds
+              - name: infrastructure-repo
+              - name: ci-repo
+              - name: version
+            outputs:
+              - name: terraform-plan-out
+            run:
+              path: sh
+              args: ["ci-repo/scripts/ci/terraform_plan.sh"]
+       - put: version
+          params: {file: version/number}
 #    on_failure:
 #      put: commit-status
 #      params:
