@@ -28,9 +28,9 @@ resources:
   - name: infrastructure-repo
     type: git
     source:
-      uri: ((github.uri))
-      branch: ((github.branch))
-      private_key: ((github.private-key))
+      uri: ((github-uri))
+      branch: ((github-branch))
+      private_key: ((github-private-key))
 
   # GitHub containing CI scripts (e.g. this repo)
   - name: ci-repo
@@ -61,7 +61,7 @@ resources:
     source:
       driver: git
       initial_version: 0.0.1
-      uri: ((github.uri))
+      uri: ((github-uri))
       branch: version
       file: version
       private_key: ((github-private-key))
@@ -116,6 +116,8 @@ jobs:
           image_resource:
             type: docker-image
             source: {repository: digitalgenius/alpine-jq-git, tag: "latest"}
+          params:
+            PIPELINE_AWS_ROLE: ((vault-aws-role-name))
           inputs:
           - name: vault
           - name: ci-repo
