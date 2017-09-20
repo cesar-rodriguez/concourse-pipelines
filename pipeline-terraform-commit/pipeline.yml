@@ -161,8 +161,8 @@ jobs:
             run:
               path: sh
               args: ["ci-repo/scripts/ci/terraform_plan.sh"]
-       - put: version
-          params: {file: version/number}
+      - put: version
+        params: {file: version/number}
 #    on_failure:
 #      put: commit-status
 #      params:
