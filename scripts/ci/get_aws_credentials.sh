@@ -5,8 +5,6 @@
 
 set -ex
 
-echo "*** Using role $PIPELINE_AWS_ROLE"
-
 environments=$(ls vault/aws)
 for env in $environments
 do
