@@ -7,7 +7,7 @@ if [ ! -z ${DEBUG_MODE} ]
 then
   if [ ${DEBUG_MODE} = "true" ]
   then
-    echo "DEBUG MODE: Warning all STS tokens will be displayed in the Concourse UI"
+    echo "DEBUG MODE"
     set -x
   fi
 fi
