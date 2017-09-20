@@ -3,6 +3,15 @@
 # Verify if terraform templates are formatted
 #
 
+if [ ! -z ${DEBUG_MODE} ]
+then
+  if [ ${DEBUG_MODE} = "true" ]
+  then
+    echo "DEBUG MODE: Warning all STS tokens will be displayed in the Concourse UI"
+    set -x
+  fi
+fi
+
 # Checking if test is going to be performed against pull request or main repo
 ls pull-request &>/dev/null
 if [ $? -eq 0 ]
