@@ -73,7 +73,7 @@ fi
 if [ $errors -eq 0 ]
 then
     # Tar built terraform plans
-    tar -czf terraform-plan-$(cat version/number).tgz terraform-plan-out
+    tar -czf ${BUILD_PIPELINE_NAME}-$(cat version/number).tgz terraform-plan-out
     mv ${BUILD_PIPELINE_NAME}-$(cat version/number).tgz terraform-plan-out
     echo -e "BUILT terraform-plan-$(cat version/number).tgz"
     exit $errors

@@ -157,7 +157,7 @@ jobs:
                 source: {repository: hashicorp/terraform, tag: "light"}
               params:
                 DEBUG_MODE: ((debug-mode))
-                PIPELINE_NAME: "${BUILD_PIPELINE_NAME}"
+                BUILD_PIPELINE_NAME: "${BUILD_PIPELINE_NAME}"
               inputs:
                 - name: aws-creds
                 - name: infrastructure-repo
@@ -177,7 +177,7 @@ jobs:
                 source: {repository: mesosphere/aws-cli, tag: "latest"}
               params:
                 DEBUG_MODE: ((debug-mode))
-                PIPELINE_NAME: "${BUILD_PIPELINE_NAME}"
+                BUILD_PIPELINE_NAME: "${BUILD_PIPELINE_NAME}"
                 BUCKET_NAME: ((s3-bucket-name))
                 AWS_PROFILE: ((s3-bucket-profile))
               inputs:
