@@ -98,10 +98,6 @@ jobs:
     plan:
       # Running get resources in parallel.
       - aggregate:
-        - put: commit-status
-          params:
-            commit: infrastructure-repo
-            state: pending
         - get: infrastructure-repo
           trigger: true
         - get: ci-repo
@@ -113,6 +109,10 @@ jobs:
             paths:
               - ((vault-stage-sts-path))
               - ((vault-prod-sts-path))
+      - put: commit-status
+          params:
+            commit: infrastructure-repo
+            state: pending
       # Generates AWS credentials file: http://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html
       - task: get-credentials
         config:
