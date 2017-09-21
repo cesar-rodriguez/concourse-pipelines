@@ -14,13 +14,14 @@ then
   fi
 fi
 
-# Install terrascan
+echo "Installing terrascan..."
 git clone https://github.com/therasec/terrascan.git
 cd terrascan
 pip install -r requirements.txt
 
-# Configure terrascan
+echo "Configuring terrascan..."
+ls ../infrastructure-repo
 echo "TERRAFORM_LOCATION = \"../infrastructure-repo\"" > terrascan/settings.py
 
-# Execute tests
+echo "Running terrascan..."
 python -m unittest
