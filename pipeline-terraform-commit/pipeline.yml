@@ -110,9 +110,9 @@ jobs:
               - ((vault-stage-sts-path))
               - ((vault-prod-sts-path))
       - put: commit-status
-          params:
-            commit: infrastructure-repo
-            state: pending
+        params:
+          commit: infrastructure-repo
+          state: pending
       # Generates AWS credentials file: http://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html
       - task: get-credentials
         config:
