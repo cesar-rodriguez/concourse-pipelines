@@ -212,6 +212,8 @@ jobs:
         image_resource:
           type: docker-image
           source: {repository: python, tag: "3.6.2"}
+        params:
+          DEBUG_MODE: ((debug-mode))
         inputs:
           - name: infrastructure-repo
           - name: ci-repo

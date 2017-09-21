@@ -21,7 +21,7 @@ pip install -r requirements.txt
 
 echo "Configuring terrascan..."
 ls ../infrastructure-repo
-echo "TERRAFORM_LOCATION = \"../infrastructure-repo\"" > terrascan/settings.py
+echo "TERRAFORM_LOCATION = \"../../infrastructure-repo\"" > terrascan/settings.py
 
 echo "Running terrascan..."
 python -m unittest
