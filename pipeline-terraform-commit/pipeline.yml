@@ -221,8 +221,6 @@ jobs:
         run:
           path: sh
           args: ["ci-repo/scripts/ci/terrascan.sh"]
-    - put: version
-      params: {file: version/number}
     on_failure:
       put: commit-status
       params:
