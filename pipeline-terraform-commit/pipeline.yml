@@ -239,36 +239,65 @@ jobs:
           body_text: "Click here to provision resources: ${ATC_EXTERNAL_URL}/teams/main/pipelines/${BUILD_PIPELINE_NAME}/jobs/provision"
 
   # provision - Gets the built terraform plan form S3 and privisions the infrastructure
-#  - name: provision
-#    public: true
-#    serial_groups: [version]
-#    plan:
-#      - aggregate:
-#        - get: vault
-#          params:
-#            paths:
-#              - aws/therasec-stage/sts/aws-global-admin
-#              - aws/therasec-prod/sts/aws-global-admin
-#        - get: infrastructure-repo
-#          passed: ["build"]
-#        - get: infrastructure-repo-artifacts
-#          passed: ["build"]
-#        - get: version
-#          params: {bump: final}
-#      - task: get-credentials
-#        config:
-#          platform: linux
-#          image_resource:
-#            type: docker-image
-#            source: {repository: digitalgenius/alpine-jq-git, tag: "latest"}
-#          inputs:
-#          - name: vault
-#          - name: infrastructure-repo
-#          outputs:
-#          - name: aws-creds
-#          run:
-#            path: sh
-#            args: ["infrastructure-repo/ci/scripts/get_aws_credentials.sh"]
+  - name: provision
+    public: true
+    serial_groups: [version]
+    plan:
+      # Running get resources in parallel.
+      - aggregate:
+        - get: infrastructure-repo
+          passed: ["build"]
+          trigger: true
+        - get: ci-repo
+        - get: version
+          params: {pre: rc}
+        # The paths where Vault resource needs to read STS tokens needs to be provided
+        - get: vault
+          params:
+            paths:
+              - ((vault-stage-sts-path))
+              - ((vault-prod-sts-path))
+        - get: version
+          params: {bump: final}
+      # Generates AWS credentials file: http://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html
+      - task: get-credentials
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: digitalgenius/alpine-jq-git, tag: "latest"}
+          params:
+            DEBUG_MODE: ((debug-mode))
+            PIPELINE_AWS_ROLE: ((vault-aws-role-name))
+          inputs:
+          - name: vault
+          - name: ci-repo
+          outputs:
+          - name: aws-creds
+          run:
+            path: sh
+            args: ["ci-repo/scripts/ci/get_aws_credentials.sh"]
+        # Gets plan output tar file from s3
+        - task: get-artifacts
+          config:
+            platform: linux
+            image_resource:
+              type: docker-image
+              source: {repository: mesosphere/aws-cli, tag: "latest"}
+            params:
+              DEBUG_MODE: ((debug-mode))
+              BUILD_PIPELINE_NAME: ((github-repo))
+              BUCKET_NAME: ((s3-bucket-name))
+              AWS_PROFILE: ((s3-bucket-profile))
+            inputs:
+              - name: aws-creds
+              - name: ci-repo
+              - name: version
+            outputs:
+              - name: artifacts
+            run:
+              path: sh
+              args: ["ci-repo/scripts/ci/get_artifacts.sh"]
 #      - task: provision
 #        config:
 #          platform: linux
