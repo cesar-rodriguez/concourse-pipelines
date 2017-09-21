@@ -246,7 +246,7 @@ jobs:
       # Running get resources in parallel.
       - aggregate:
         - get: infrastructure-repo
-          passed: ["build"]
+          passed: ["test"]
           trigger: true
         - get: ci-repo
         - get: version
