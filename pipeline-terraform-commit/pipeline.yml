@@ -211,7 +211,7 @@ jobs:
         platform: linux
         image_resource:
           type: docker-image
-          source: {repository: python, tag: "3.6.2-alpine"}
+          source: {repository: python, tag: "3.6.2"}
         inputs:
           - name: infrastructure-repo
           - name: ci-repo
