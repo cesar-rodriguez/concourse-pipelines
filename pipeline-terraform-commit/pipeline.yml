@@ -48,12 +48,12 @@ resources:
       context: concourse-ci
 
   # A GitHub release is created with every version change
-#  - name: release
-#    type: github-release
-#    source:
-#      owner: ((github.org))
-#      repository: ((github.repo))
-#      access_token: ((github.personal-access-token))
+  - name: release
+    type: github-release
+    source:
+      owner: ((github.org))
+      repository: ((github.repo))
+      access_token: ((github.personal-access-token))
 
   # Tracks the semantic version of the infrastructure repository: https://github.com/concourse/semver-resource
   - name: version
@@ -327,7 +327,7 @@ jobs:
   # Used for hotfixes. Automatically triggered
   - name: bump-patch
     serial_groups: [version]
-    plan:
+      plan:
     - get: version
       passed: [provision]
       trigger: true
