@@ -75,7 +75,7 @@ then
     # Tar built terraform plans
     tar -czf ${BUILD_PIPELINE_NAME}-$(cat version/number).tgz terraform-plan-out
     mv ${BUILD_PIPELINE_NAME}-$(cat version/number).tgz terraform-plan-out
-    echo -e "BUILT terraform-plan-$(cat version/number).tgz"
+    echo -e "BUILT ${BUILD_PIPELINE_NAME}-$(cat version/number).tgz"
     exit $errors
 else
     exit $errors
