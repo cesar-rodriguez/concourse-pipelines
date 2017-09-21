@@ -316,29 +316,23 @@ jobs:
           run:
             path: sh
             args: ["ci-repo/scripts/ci/terraform_apply.sh"]
-
-#      - put: version
-#        params: { bump: final }
-#      - put: release
-#        params:
-#          name: release/name
-#          tag:  release/tag
-#    on_failure:
-#      put: commit-status
-#      params:
-#        commit: infrastructure-repo
-#        state: error
+      - put: version
+        params: { bump: final }
+      - put: release
+        params:
+          name: release/name
+          tag:  release/tag
 
 
   # Used for hotfixes. Automatically triggered
-#  - name: bump-patch
-#    serial_groups: [version]
-#    plan:
-#    - get: version
-#      passed: [provision]
-#      trigger: true
-#    - put: version
-#      params: {bump: patch, pre: rc}
+  - name: bump-patch
+    serial_groups: [version]
+    plan:
+    - get: version
+      passed: [provision]
+      trigger: true
+    - put: version
+      params: {bump: patch, pre: rc}
 
   # Used for changes that are backwards compatible. Needs to be manually triggered
 #  - name: bump-minor
