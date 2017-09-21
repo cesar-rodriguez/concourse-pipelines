@@ -198,23 +198,26 @@ jobs:
   - name: test
     public: true
     plan:
-    - get: infrastructure-repo
-      passed: ["build"]
-      trigger: true
     - aggregate:
-      # Static code analysis of terraform resources using terrascan: https://github.com/cesar-rodriguez/terrascan
-      - task: terrascan
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: python, tag: "3.6.2-alpine"}
-          inputs:
-            - name: infrastructure-repo
-            - name: ci-repo
-          run:
-            path: sh
-            args: ["ci-repo/scripts/ci/terrascan.sh"]
+        - get: infrastructure-repo
+          passed: ["build"]
+          trigger: true
+        - get: ci-repo
+        - get: version
+          params: {pre: rc}
+    # Static code analysis of terraform resources using terrascan: https://github.com/cesar-rodriguez/terrascan
+    - task: terrascan
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: {repository: python, tag: "3.6.2-alpine"}
+        inputs:
+          - name: infrastructure-repo
+          - name: ci-repo
+        run:
+          path: sh
+          args: ["ci-repo/scripts/ci/terrascan.sh"]
 
 #      - task: tflint
 #        config:
