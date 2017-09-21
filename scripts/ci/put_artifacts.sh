@@ -17,5 +17,7 @@ fi
 # Get AWS credentials
 mkdir -p ~/.aws
 cp aws-creds/credentials ~/.aws/credentials
+# Debugging malformed config file
+cat ~/.aws/credentials
 
 aws s3 cp terraform-plan-out/${BUILD_PIPELINE_NAME}-$(cat version/number).tgz s3://${BUCKET_NAME} --profile ${AWS_PROFILE}
