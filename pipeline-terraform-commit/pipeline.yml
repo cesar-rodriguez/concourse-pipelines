@@ -67,16 +67,16 @@ resources:
       private_key: ((github-private-key))
 
   # Sends email when build/test are sucessful
-#  - name: send-email
-#    type: email
-#    source:
-#      smtp:
-#        host: ((smtp-host))
-#        port: ((smtp-port))
-#        username: ((smtp-username))
-#        password: ((smtp-password))
-#      from: ((email-from))
-#      to: [ ((email-from)) ]
+  - name: send-email
+    type: email
+    source:
+      smtp:
+        host: ((smtp-host))
+        port: ((smtp-port))
+        username: ((smtp-username))
+        password: ((smtp-password))
+      from: ((email-from))
+      to: [ ((email-from)) ]
 
   # Interacting with vault to get AWS credentials
   - name: vault
