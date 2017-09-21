@@ -205,6 +205,7 @@ jobs:
           trigger: true
         - get: ci-repo
         - get: version
+          params: {pre: rc}
     # Static code analysis of terraform resources using terrascan: https://github.com/cesar-rodriguez/terrascan
     - task: terrascan
       config:
@@ -250,6 +251,7 @@ jobs:
           trigger: true
         - get: ci-repo
         - get: version
+          params: {pre: rc}
         # The paths where Vault resource needs to read STS tokens needs to be provided
         - get: vault
           params:
