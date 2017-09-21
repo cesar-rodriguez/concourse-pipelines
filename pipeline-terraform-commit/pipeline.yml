@@ -277,27 +277,27 @@ jobs:
           run:
             path: sh
             args: ["ci-repo/scripts/ci/get_aws_credentials.sh"]
-        # Gets plan output tar file from s3
-        - task: get-artifacts
-          config:
-            platform: linux
-            image_resource:
-              type: docker-image
-              source: {repository: mesosphere/aws-cli, tag: "latest"}
-            params:
-              DEBUG_MODE: ((debug-mode))
-              BUILD_PIPELINE_NAME: ((github-repo))
-              BUCKET_NAME: ((s3-bucket-name))
-              AWS_PROFILE: ((s3-bucket-profile))
-            inputs:
-              - name: aws-creds
-              - name: ci-repo
-              - name: version
-            outputs:
-              - name: artifacts
-            run:
-              path: sh
-              args: ["ci-repo/scripts/ci/get_artifacts.sh"]
+      # Gets plan output tar file from s3
+      - task: get-artifacts
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: mesosphere/aws-cli, tag: "latest"}
+          params:
+            DEBUG_MODE: ((debug-mode))
+            BUILD_PIPELINE_NAME: ((github-repo))
+            BUCKET_NAME: ((s3-bucket-name))
+            AWS_PROFILE: ((s3-bucket-profile))
+          inputs:
+            - name: aws-creds
+            - name: ci-repo
+            - name: version
+          outputs:
+            - name: artifacts
+          run:
+            path: sh
+            args: ["ci-repo/scripts/ci/get_artifacts.sh"]
 #      - task: provision
 #        config:
 #          platform: linux
