@@ -220,35 +220,23 @@ jobs:
         run:
           path: sh
           args: ["ci-repo/scripts/ci/terrascan.sh"]
-
-#      - task: tflint
-#        config:
-#          platform: linux
-#          image_resource:
-#            type: docker-image
-#            source: {repository: wata727/tflint, tag: "latest"}
-#          inputs:
-#            - name: infrastructure-repo
-#          run:
-#            path: sh
-#            args: ["infrastructure-repo/ci/scripts/scan.sh"]
-#    - put: version
-#      params: {file: version/number}
-#    on_failure:
-#      put: commit-status
-#      params:
-#        commit: infrastructure-repo
-#        state: failure
-#    on_success:
-#      do:
-#        - put: commit-status
-#          params:
-#            commit: infrastructure-repo
-#            state: success
-#        - put: send-email
-#          params:
-#            subject_text: "[concourse-ci] ((github-org))/((github-repo)) build successful: ${BUILD_PIPELINE_NAME}/${BUILD_JOB_NAME}/${BUILD_NAME}"
-#            body_text: "Click here to provision resources: ${ATC_EXTERNAL_URL}/teams/main/pipelines/${BUILD_PIPELINE_NAME}/jobs/provision"
+    - put: version
+      params: {file: version/number}
+    on_failure:
+      put: commit-status
+      params:
+        commit: infrastructure-repo
+        state: failure
+    on_success:
+      do:
+      - put: commit-status
+        params:
+          commit: infrastructure-repo
+          state: success
+#      - put: send-email
+#        params:
+#          subject_text: "[concourse-ci] ((github-org))/((github-repo)) build successful: ${BUILD_PIPELINE_NAME}/${BUILD_JOB_NAME}/${BUILD_NAME}"
+#          body_text: "Click here to provision resources: ${ATC_EXTERNAL_URL}/teams/main/pipelines/${BUILD_PIPELINE_NAME}/jobs/provision"
 
   # provision - Gets the built terraform plan form S3 and privisions the infrastructure
 #  - name: provision
