@@ -182,6 +182,7 @@ jobs:
                 - name: aws-creds
                 - name: ci-repo
                 - name: terraform-plan-out
+                - name: version
               run:
                 path: sh
                 args: ["ci-repo/scripts/ci/put_artifacts.sh"]
