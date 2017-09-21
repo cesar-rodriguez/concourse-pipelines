@@ -295,22 +295,25 @@ jobs:
           run:
             path: sh
             args: ["ci-repo/scripts/ci/get_artifacts.sh"]
-#      - task: provision
-#        config:
-#          platform: linux
-#          image_resource:
-#            type: docker-image
-#            source: {repository: hashicorp/terraform, tag: "light"}
-#          inputs:
-#            - name: aws-creds
-#            - name: infrastructure-repo
-#            - name: infrastructure-repo-artifacts
-#            - name: version
-#          outputs:
-#            - name: release
-#          run:
-#            path: sh
-#            args: ["infrastructure-repo/ci/scripts/provision.sh"]
+      # Performs terraform applies for each environment with changes
+      - task: terraform-apply
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: hashicorp/terraform, tag: "light"}
+          inputs:
+            - name: aws-creds
+            - name: infrastructure-repo
+            - name: ci-repo
+            - name: version
+            - name: artifacts
+          outputs:
+            - name: release
+          run:
+            path: sh
+            args: ["ci-repo/scripts/ci/terraform_apply.sh"]
+
 #      - put: version
 #        params: { bump: final }
 #      - put: release
