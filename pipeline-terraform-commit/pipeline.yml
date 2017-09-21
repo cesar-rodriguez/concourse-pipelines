@@ -42,9 +42,9 @@ resources:
   - name: commit-status
     type: github-status
     source:
-      repository: ((github.org))/((github.repo))
-      access_token: ((github.personal-access-token))
-      branch: ((github.branch))
+      repository: ((github-org))/((github-repo))
+      access_token: ((github-personal-access-token))
+      branch: ((github-branch))
       context: concourse-ci
 
   # A GitHub release is created with every version change
