@@ -327,7 +327,7 @@ jobs:
   # Used for hotfixes. Automatically triggered
   - name: bump-patch
     serial_groups: [version]
-      plan:
+    plan:
     - get: version
       passed: [provision]
       trigger: true
