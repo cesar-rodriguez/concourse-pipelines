@@ -20,5 +20,5 @@ cp aws-creds/credentials ~/.aws/credentials
 
 # Get tar file
 echo "Retrieving tar file..."
-aws s3 cp s3://${BUCKET_NAME}/terraform-plan-out/${BUILD_PIPELINE_NAME}-$(cat version/number).tgz artifacts --profile ${AWS_PROFILE}
+aws s3 cp s3://${BUCKET_NAME}/${BUILD_PIPELINE_NAME}-$(cat version/number).tgz artifacts --profile ${AWS_PROFILE}
 ls artifacts
