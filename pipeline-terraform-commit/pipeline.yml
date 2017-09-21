@@ -257,8 +257,6 @@ jobs:
             paths:
               - ((vault-stage-sts-path))
               - ((vault-prod-sts-path))
-        - get: version
-          params: {bump: final}
       # Generates AWS credentials file: http://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html
       - task: get-credentials
         config:
