@@ -302,6 +302,9 @@ jobs:
           image_resource:
             type: docker-image
             source: {repository: hashicorp/terraform, tag: "light"}
+          params:
+            DEBUG_MODE: ((debug-mode))
+            BUILD_PIPELINE_NAME: ((github-repo))
           inputs:
             - name: aws-creds
             - name: infrastructure-repo
