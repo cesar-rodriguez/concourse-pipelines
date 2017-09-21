@@ -197,6 +197,7 @@ jobs:
   # test - Perform "unit tests" on terraform resources
   - name: test
     public: true
+    serial_groups: [version]
     plan:
     - aggregate:
         - get: infrastructure-repo
