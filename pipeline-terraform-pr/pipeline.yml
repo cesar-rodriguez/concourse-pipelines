@@ -44,10 +44,10 @@ resources:
   - name: pull-request
     type: pull-request
     source:
-      access_token: ((github-access-token))
+      access_token: ((github-personal-access-token))
       private_key:  ((github-private-key))
       repo: ((github-org))/((github-repo))
-      base: ((github-repo-branch))
+      base: ((github-branch))
 
 
 # Jobs to be executed against the resources
