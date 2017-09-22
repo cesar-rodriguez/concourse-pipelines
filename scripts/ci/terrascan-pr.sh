@@ -25,3 +25,8 @@ echo "TERRAFORM_LOCATION = \"../../pull-request\"" > terrascan/settings.py
 
 echo "Running terrascan..."
 python -m unittest 2>&1 | tee ../pull-request-comment/comment | grep "FAILED"
+
+# Exit 1 if unit test contains FAILED in it's output
+if [ $? -eq 0 ]; then
+    exit 1
+fi
