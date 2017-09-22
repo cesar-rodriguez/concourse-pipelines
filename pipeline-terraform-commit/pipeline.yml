@@ -51,9 +51,9 @@ resources:
   - name: release
     type: github-release
     source:
-      owner: ((github.org))
-      repository: ((github.repo))
-      access_token: ((github.personal-access-token))
+      owner: ((github-org))
+      repository: ((github-repo))
+      access_token: ((github-personal-access-token))
 
   # Tracks the semantic version of the infrastructure repository: https://github.com/concourse/semver-resource
   - name: version
