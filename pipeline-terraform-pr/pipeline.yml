@@ -2,11 +2,11 @@
 # Community resources: http://concourse.ci/configuring-resource-types.html
 resource_types:
   # Fetches secrets custom paths in Vault: https://github.com/Docurated/concourse-vault-resource
-  - name: vault
-    type: docker-image
-    source:
-      repository: docurated/concourse-vault-resource
-      tag: latest
+#  - name: vault
+#    type: docker-image
+#    source:
+#      repository: docurated/concourse-vault-resource
+#      tag: latest
 
   # Interacts with GitHub pull requests: https://github.com/jtarchie/github-pullrequest-resource
   - name: pull-request
@@ -32,13 +32,13 @@ resources:
       uri: https://github.com/cesar-rodriguez/terraform-pipeline.git
 
   # Interacting with vault to get AWS credentials
-  - name: vault
-    type: vault
-    source:
-      url: ((vault-address))
-      auth_method: AppRole
-      role_id: ((vault-role-id))
-      secret_id: ((vault-secret-id))
+#  - name: vault
+#    type: vault
+#    source:
+#      url: ((vault-address))
+#      auth_method: AppRole
+#      role_id: ((vault-role-id))
+#      secret_id: ((vault-secret-id))
 
   # Interacts with GitHub pull requests
   - name: pull-request
