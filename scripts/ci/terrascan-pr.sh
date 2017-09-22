@@ -24,4 +24,4 @@ echo "Configuring terrascan..."
 echo "TERRAFORM_LOCATION = \"../../pull-request\"" > terrascan/settings.py
 
 echo "Running terrascan..."
-python -m unittest 2>&1 | tee ../pull-request-comment/comment
+python -m unittest 2>&1 | tee ../pull-request-comment/comment | grep "FAILED"
