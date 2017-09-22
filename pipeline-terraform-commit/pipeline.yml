@@ -246,7 +246,6 @@ jobs:
       - aggregate:
         - get: infrastructure-repo
           passed: ["test"]
-          trigger: true
         - get: ci-repo
         - get: version
           params: {pre: rc}
@@ -321,6 +320,7 @@ jobs:
   - name: release
     serial_groups: [version]
     plan:
+    - get: ci-repo
     - get: version
       passed: [provision]
       trigger: true
