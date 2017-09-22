@@ -1,0 +1,100 @@
+---
+# Community resources: http://concourse.ci/configuring-resource-types.html
+resource_types:
+  # Fetches secrets custom paths in Vault: https://github.com/Docurated/concourse-vault-resource
+  - name: vault
+    type: docker-image
+    source:
+      repository: docurated/concourse-vault-resource
+      tag: latest
+
+  # Interacts with GitHub pull requests: https://github.com/jtarchie/github-pullrequest-resource
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: jtarchie/pr
+
+
+# Resources used by the pipeline: http://concourse.ci/configuring-resources.html
+resources:
+  # GitHub repository containing terraform templates
+#  - name: infrastructure-repo
+#    type: git
+#    source:
+#      uri: ((github-uri))
+#      branch: ((github-branch))
+#      private_key: ((github-private-key))
+
+  # GitHub containing CI scripts (e.g. this repo)
+  - name: ci-repo
+    type: git
+    source:
+      uri: https://github.com/cesar-rodriguez/terraform-pipeline.git
+
+  # Interacting with vault to get AWS credentials
+  - name: vault
+    type: vault
+    source:
+      url: ((vault-address))
+      auth_method: AppRole
+      role_id: ((vault-role-id))
+      secret_id: ((vault-secret-id))
+
+  # Interacts with GitHub pull requests
+  - name: pull-request
+    type: pull-request
+    source:
+      access_token: ((github-access-token))
+      private_key:  ((github-private-key))
+      repo: ((github-org))/((github-repo))
+      base: ((github-repo-branch))
+
+
+# Jobs to be executed against the resources
+# http://concourse.ci/configuring-jobs.html
+jobs:
+  # test - Perform "unit tests" on terraform resources
+  - name: test
+    public: true
+    serial_groups: [pr]
+    plan:
+    - aggregate:
+#      - get: infrastructure-repo
+      - get: ci-repo
+      - do:
+        - get: pull-request
+          trigger: true
+          version: every
+        - put: pull-request
+          params:
+            path: pull-request
+            status: pending
+    # Static code analysis of terraform resources using terrascan: https://github.com/cesar-rodriguez/terrascan
+    - task: terrascan
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: {repository: python, tag: "3.6.2"}
+        params:
+          DEBUG_MODE: ((debug-mode))
+        inputs:
+#          - name: infrastructure-repo
+          - name: ci-repo
+          - name: pull-request
+        outputs:
+          - name: pull-request-comment
+        run:
+          path: sh
+          args: ["ci-repo/scripts/ci/terrascan-pr.sh"]
+      on_failure:
+        put: pull-request
+        params:
+          path: pull-request
+          status: failure
+          comment: "pr-comment/comment"
+    on_success:
+      put: pull-request
+      params:
+        path: pull-request
+        status: success
