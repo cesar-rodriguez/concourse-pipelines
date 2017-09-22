@@ -311,8 +311,6 @@ jobs:
             - name: ci-repo
             - name: version
             - name: artifacts
-          outputs:
-            - name: release
           run:
             path: sh
             args: ["ci-repo/scripts/ci/terraform_apply.sh"]
@@ -326,6 +324,24 @@ jobs:
     - get: version
       passed: [provision]
       trigger: true
+    # Gets version information for release
+    - task: get-version
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: {repository: alpine, tag: "3.6"}
+        params:
+          DEBUG_MODE: ((debug-mode))
+          BUILD_PIPELINE_NAME: ((github-repo))
+        inputs:
+          - name: ci-repo
+          - name: version
+        outputs:
+          - name: release
+        run:
+          path: sh
+          args: ["ci-repo/scripts/ci/get_version.sh"]
     - put: release
       params:
         name: release/name
