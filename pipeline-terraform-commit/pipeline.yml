@@ -331,7 +331,7 @@ jobs:
         name: release/name
         tag:  release/tag
 
-  # Used for hotfixes. Automatically triggered
+  # Used for hotfixes (e.g. 0.0.x versioning). Automatically triggered
   - name: bump-patch
     serial_groups: [version]
     plan:
@@ -341,16 +341,16 @@ jobs:
     - put: version
       params: {bump: patch, pre: rc}
 
-  # Used for changes that are backwards compatible. Needs to be manually triggered
-#  - name: bump-minor
-#    serial_groups: [version]
-#    plan:
-#    - put: version
-#      params: {bump: minor}
+  # Used for changes that are backwards compatible (e.g. 0.x.0 versioning). Needs to be manually triggered
+  - name: bump-minor
+    serial_groups: [version]
+    plan:
+    - put: version
+      params: {bump: minor}
 
-  # Used for breaking changes. Needs to be manually triggered
-#  - name: bump-major
-#    serial_groups: [version]
-#    plan:
-#    - put: version
-#      params: {bump: major}
+  # Used for breaking changes (e.g. x.0.0 versioning). Needs to be manually triggered
+  - name: bump-major
+    serial_groups: [version]
+    plan:
+    - put: version
+      params: {bump: major}
