@@ -92,7 +92,7 @@ jobs:
         params:
           path: pull-request
           status: failure
-          comment: "pr-comment/comment"
+          comment: "pull-request-comment/comment"
     on_success:
       put: pull-request
       params:
