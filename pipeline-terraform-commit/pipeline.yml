@@ -318,11 +318,18 @@ jobs:
             args: ["ci-repo/scripts/ci/terraform_apply.sh"]
       - put: version
         params: { bump: final }
-      - put: release
-        params:
-          name: release/name
-          tag:  release/tag
 
+  # Create GitHub Release. Automatically triggered
+  - name: release
+    serial_groups: [version]
+    plan:
+    - get: version
+      passed: [provision]
+      trigger: true
+    - put: release
+      params:
+        name: release/name
+        tag:  release/tag
 
   # Used for hotfixes. Automatically triggered
   - name: bump-patch
