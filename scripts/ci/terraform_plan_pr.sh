@@ -61,7 +61,7 @@ do
         echo "BUILDING $env: terraform plan <diff>"
         cat tfplan.txt
         echo "terraform plan output for environment: $env" >> ${WORK_DIR}/pull-request-comment/comment
-        cat tfplan.txt >> ${WORK_DIR}pull-request-comment/comment
+        cat tfplan.txt >> ${WORK_DIR}/pull-request-comment/comment
         cd ../../
         echo
         echo
