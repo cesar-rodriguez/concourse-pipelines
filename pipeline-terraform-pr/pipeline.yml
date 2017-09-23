@@ -86,6 +86,7 @@ jobs:
           run:
             path: sh
             args: ["ci-repo/scripts/ci/get_aws_credentials.sh"]
+      - aggregate:
         # Checks if terraform is properly formatted
         - task: terraform-format
           config:
