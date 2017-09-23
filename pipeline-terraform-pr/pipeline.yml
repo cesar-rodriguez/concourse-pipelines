@@ -109,26 +109,38 @@ jobs:
               path: pull-request
               status: failure
               comment: "pull-request-comment/comment"
-#        # Runs terraform plan and outputs tar file
-#        - task: terraform-plan
-#          config:
-#            platform: linux
-#            image_resource:
-#              type: docker-image
-#              source: {repository: hashicorp/terraform, tag: "light"}
-#            params:
-#              DEBUG_MODE: ((debug-mode))
-#              BUILD_PIPELINE_NAME: ((github-repo))
-#            inputs:
-#              - name: aws-creds
-#              - name: pull-request
-#                path: infrastructure-repo
-#              - name: ci-repo
-#            outputs:
-#              - name: terraform-plan-out
-#            run:
-#              path: sh
-#              args: ["ci-repo/scripts/ci/terraform_plan_pr.sh"]
+        # Runs terraform plan and outputs tar file
+        - task: terraform-plan
+          config:
+            platform: linux
+            image_resource:
+              type: docker-image
+              source: {repository: hashicorp/terraform, tag: "light"}
+            params:
+              DEBUG_MODE: ((debug-mode))
+              BUILD_PIPELINE_NAME: ((github-repo))
+            inputs:
+              - name: aws-creds
+              - name: pull-request
+                path: infrastructure-repo
+              - name: ci-repo
+            outputs:
+              - name: terraform-plan-out
+            run:
+              path: sh
+              args: ["ci-repo/scripts/ci/terraform_plan_pr.sh"]
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: failure
+              comment: "pull-request-comment/comment"
+          on_success:
+            put: pull-request
+            params:
+              path: pull-request
+              status: pending
+              comment: "pull-request-comment/comment"
 
   # test - Perform "unit tests" on terraform resources
   - name: test
