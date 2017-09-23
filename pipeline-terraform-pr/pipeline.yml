@@ -152,6 +152,12 @@ jobs:
             path: pull-request
             status: success
             context: build
+        on_failure:
+          put: pull-request
+          params:
+            path: pull-request
+            status: failure
+            context: build
 
   # test - Perform "unit tests" on terraform resources
   - name: test
@@ -200,3 +206,9 @@ jobs:
         path: pull-request
         status: success
         context: test
+    on_failure:
+        put: pull-request
+        params:
+          path: pull-request
+          status: failure
+          context: test
