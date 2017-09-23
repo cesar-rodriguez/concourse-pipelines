@@ -86,78 +86,64 @@ jobs:
           run:
             path: sh
             args: ["ci-repo/scripts/ci/get_aws_credentials.sh"]
-      - aggregate:
-        # Checks if terraform is properly formatted
-        - task: terraform-format
-          config:
-            platform: linux
-            image_resource:
-              type: docker-image
-              source: {repository: hashicorp/terraform, tag: "light"}
-            params:
-              DEBUG_MODE: ((debug-mode))
-            inputs:
-              - name: pull-request
-              - name: ci-repo
-            outputs:
-              - name: pull-request-comment
-            run:
-              path: sh
-              args: ["ci-repo/scripts/ci/terraform_format.sh"]
-          on_failure:
-            put: pull-request
-            params:
-              path: pull-request
-              status: failure
-              comment: "pull-request-comment/comment"
-              context: build
-        # Runs terraform plan and outputs tar file
-        - task: terraform-plan
-          config:
-            platform: linux
-            image_resource:
-              type: docker-image
-              source: {repository: hashicorp/terraform, tag: "light"}
-            params:
-              DEBUG_MODE: ((debug-mode))
-              BUILD_PIPELINE_NAME: ((github-repo))
-            inputs:
-              - name: aws-creds
-              - name: pull-request
-                path: infrastructure-repo
-              - name: ci-repo
-            outputs:
-              - name: terraform-plan-out
-              - name: pull-request-comment
-            run:
-              path: sh
-              args: ["ci-repo/scripts/ci/terraform_plan_pr.sh"]
-          on_failure:
-            put: pull-request
-            params:
-              path: pull-request
-              status: failure
-              comment: "pull-request-comment/comment"
-              context: build
-          on_success:
-            put: pull-request
-            params:
-              path: pull-request
-              status: success
-              comment: "pull-request-comment/comment"
-              context: build
-      on_failure:
-        put: pull-request
-        params:
-          path: pull-request
-          status: failure
-          context: build
-      on_success:
-        put: pull-request
-        params:
-          path: pull-request
-          status: success
-          context: build
+      - task: terraform-format
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: hashicorp/terraform, tag: "light"}
+          params:
+            DEBUG_MODE: ((debug-mode))
+          inputs:
+            - name: pull-request
+            - name: ci-repo
+          outputs:
+            - name: pull-request-comment
+          run:
+            path: sh
+            args: ["ci-repo/scripts/ci/terraform_format.sh"]
+        on_failure:
+          put: pull-request
+          params:
+            path: pull-request
+            status: failure
+            comment: "pull-request-comment/comment"
+            context: build
+      # Runs terraform plan and outputs tar file
+      - task: terraform-plan
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: hashicorp/terraform, tag: "light"}
+          params:
+            DEBUG_MODE: ((debug-mode))
+            BUILD_PIPELINE_NAME: ((github-repo))
+          inputs:
+            - name: aws-creds
+            - name: pull-request
+              path: infrastructure-repo
+            - name: ci-repo
+          outputs:
+            - name: terraform-plan-out
+            - name: pull-request-comment
+          run:
+            path: sh
+            args: ["ci-repo/scripts/ci/terraform_plan_pr.sh"]
+        on_failure:
+          put: pull-request
+          params:
+            path: pull-request
+            status: failure
+            comment: "pull-request-comment/comment"
+            context: build
+        on_success:
+          put: pull-request
+          params:
+            path: pull-request
+            status: success
+            comment: "pull-request-comment/comment"
+            context: build
 
   # test - Perform "unit tests" on terraform resources
   - name: test
