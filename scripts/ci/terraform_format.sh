@@ -19,7 +19,8 @@ then
     echo "Evaluating pull-request"
     export TEST_DIR=pull-request
     cd $TEST_DIR
-    echo "concourse-ci terraform-format test failed on this pull request's commit: $(git rev-parse HEAD | cut -c1-7). Please run \`terraform fmt\`." > ../pull-request-comment/comment
+    echo "**FAILED** \`terraform fmt\` test on: $(git rev-parse HEAD | cut -c1-7)
+Please run \`terraform fmt\`." > ../pull-request-comment/comment
     cd ../
 else
     echo "Evaluating infrastructure-repo"
