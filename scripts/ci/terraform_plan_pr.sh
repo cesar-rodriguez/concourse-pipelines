@@ -52,7 +52,7 @@ do
     then
         echo "BUILDING $env: terraform plan <error>"
         cat tfplan.txt
-        echo "#ERROR in \`terraform plan\` for environment: $env" >> ${WORK_DIR}/pull-request-comment/comment
+        echo "#\`terraform plan\` error $env $(git rev-parse HEAD | cut -c1-7)" >> ${WORK_DIR}/pull-request-comment/comment
         cat tfplan-nc.txt >> ${WORK_DIR}/pull-request-comment/comment
         errors=1
         cd ../../
@@ -61,7 +61,7 @@ do
     else
         echo "BUILDING $env: terraform plan <diff>"
         cat tfplan.txt
-        echo "#`terraform plan` output for environment: $env" >> ${WORK_DIR}/pull-request-comment/comment
+        echo "#\`terraform plan\` output $env $(git rev-parse HEAD | cut -c1-7)" >> ${WORK_DIR}/pull-request-comment/comment
         cat tfplan-nc.txt >> ${WORK_DIR}/pull-request-comment/comment
         cd ../../
         echo
