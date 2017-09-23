@@ -67,6 +67,7 @@ jobs:
             params:
               path: pull-request
               status: pending
+              context: build
       # Generates AWS credentials file: http://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html
       - task: get-credentials
         config:
@@ -109,6 +110,7 @@ jobs:
               path: pull-request
               status: failure
               comment: "pull-request-comment/comment"
+              context: build
         # Runs terraform plan and outputs tar file
         - task: terraform-plan
           config:
@@ -136,6 +138,20 @@ jobs:
               path: pull-request
               status: failure
               comment: "pull-request-comment/comment"
+              context: build
+          on_success:
+            put: pull-request
+            params:
+              path: pull-request
+              status: pending
+              comment: "pull-request-comment/comment"
+              context: build
+        on_success:
+          put: pull-request
+          params:
+            path: pull-request
+            status: success
+            context: build
 
   # test - Perform "unit tests" on terraform resources
   - name: test
@@ -153,6 +169,7 @@ jobs:
           params:
             path: pull-request
             status: pending
+            context: test
     # Static code analysis of terraform resources using terrascan: https://github.com/cesar-rodriguez/terrascan
     - task: terrascan
       config:
@@ -176,8 +193,10 @@ jobs:
           path: pull-request
           status: failure
           comment: "pull-request-comment/comment"
+          context: test
     on_success:
       put: pull-request
       params:
         path: pull-request
         status: success
+        context: test
