@@ -86,7 +86,6 @@ jobs:
           run:
             path: sh
             args: ["ci-repo/scripts/ci/get_aws_credentials.sh"]
-      - aggregate:
         # Checks if terraform is properly formatted
         - task: terraform-format
           config:
@@ -139,19 +138,25 @@ jobs:
               status: failure
               comment: "pull-request-comment/comment"
               context: build
-        on_failure:
-          put: pull-request
-          params:
-            path: pull-request
-            status: failure
-            context: build
-        on_success:
-          put: pull-request
-          params:
-            path: pull-request
-            status: success
-            comment: "pull-request-comment/comment"
-            context: build
+          on_success:
+            put: pull-request
+            params:
+              path: pull-request
+              status: success
+              comment: "pull-request-comment/comment"
+              context: build
+      on_failure:
+        put: pull-request
+        params:
+          path: pull-request
+          status: failure
+          context: build
+      on_success:
+        put: pull-request
+        params:
+          path: pull-request
+          status: success
+          context: build
 
   # test - Perform "unit tests" on terraform resources
   - name: test
