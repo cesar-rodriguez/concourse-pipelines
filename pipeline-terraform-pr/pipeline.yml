@@ -139,24 +139,18 @@ jobs:
               status: failure
               comment: "pull-request-comment/comment"
               context: build
-          on_success:
-            put: pull-request
-            params:
-              path: pull-request
-              status: pending
-              comment: "pull-request-comment/comment"
-              context: build
-        on_success:
-          put: pull-request
-          params:
-            path: pull-request
-            status: success
-            context: build
         on_failure:
           put: pull-request
           params:
             path: pull-request
             status: failure
+            context: build
+        on_success:
+          put: pull-request
+          params:
+            path: pull-request
+            status: success
+            comment: "pull-request-comment/comment"
             context: build
 
   # test - Perform "unit tests" on terraform resources
