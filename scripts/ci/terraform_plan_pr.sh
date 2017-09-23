@@ -51,12 +51,8 @@ do
     then
         echo "BUILDING $env: terraform plan <error>"
         cat tfplan.txt
-
-        echo "Figuring out were we're at ../"
-        ls ${WORK_DIR}
-
         echo "ERROR in terraform plan for environment: $env" >> ${WORK_DIR}/pull-request-comment/comment
-        cat tfplan.txt >> pull-request-comment/comment
+        cat tfplan.txt >> ${WORK_DIR}/pull-request-comment/comment
         errors=1
         cd ../../
         echo
@@ -64,12 +60,8 @@ do
     else
         echo "BUILDING $env: terraform plan <diff>"
         cat tfplan.txt
-
-        echo "Figuring out were we're at ../"
-        ls ${WORK_DIR}
-
         echo "terraform plan output for environment: $env" >> ${WORK_DIR}/pull-request-comment/comment
-        cat tfplan.txt >> pull-request-comment/comment
+        cat tfplan.txt >> ${WORK_DIR}pull-request-comment/comment
         cd ../../
         echo
         echo
