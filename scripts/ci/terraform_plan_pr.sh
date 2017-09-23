@@ -38,6 +38,7 @@ do
     set +e
     terraform plan -detailed-exitcode -out=tfplan -input=false -var-file=environments/$env.tfvars > tfplan.txt
     planexit=$?
+    terraform plan -detailed-exitcode -no-color -input=false -var-file=environments/$env.tfvars > tfplan-nc.txt
     set -e
     if [ $planexit -eq 0 ]
     then
@@ -51,8 +52,8 @@ do
     then
         echo "BUILDING $env: terraform plan <error>"
         cat tfplan.txt
-        echo "ERROR in terraform plan for environment: $env" >> ${WORK_DIR}/pull-request-comment/comment
-        cat tfplan.txt >> ${WORK_DIR}/pull-request-comment/comment
+        echo "#ERROR in \`terraform plan\` for environment: $env" >> ${WORK_DIR}/pull-request-comment/comment
+        cat tfplan-nc.txt >> ${WORK_DIR}/pull-request-comment/comment
         errors=1
         cd ../../
         echo
@@ -60,8 +61,8 @@ do
     else
         echo "BUILDING $env: terraform plan <diff>"
         cat tfplan.txt
-        echo "terraform plan output for environment: $env" >> ${WORK_DIR}/pull-request-comment/comment
-        cat tfplan.txt >> ${WORK_DIR}/pull-request-comment/comment
+        echo "#`terraform plan` output for environment: $env" >> ${WORK_DIR}/pull-request-comment/comment
+        cat tfplan-nc.txt >> ${WORK_DIR}/pull-request-comment/comment
         cd ../../
         echo
         echo
