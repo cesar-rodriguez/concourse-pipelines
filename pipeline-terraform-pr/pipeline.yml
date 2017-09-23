@@ -2,11 +2,11 @@
 # Community resources: http://concourse.ci/configuring-resource-types.html
 resource_types:
   # Fetches secrets custom paths in Vault: https://github.com/Docurated/concourse-vault-resource
-#  - name: vault
-#    type: docker-image
-#    source:
-#      repository: docurated/concourse-vault-resource
-#      tag: latest
+  - name: vault
+    type: docker-image
+    source:
+      repository: docurated/concourse-vault-resource
+      tag: latest
 
   # Interacts with GitHub pull requests: https://github.com/jtarchie/github-pullrequest-resource
   - name: pull-request
@@ -17,14 +17,6 @@ resource_types:
 
 # Resources used by the pipeline: http://concourse.ci/configuring-resources.html
 resources:
-  # GitHub repository containing terraform templates
-#  - name: infrastructure-repo
-#    type: git
-#    source:
-#      uri: ((github-uri))
-#      branch: ((github-branch))
-#      private_key: ((github-private-key))
-
   # GitHub containing CI scripts (e.g. this repo)
   - name: ci-repo
     type: git
@@ -32,13 +24,13 @@ resources:
       uri: https://github.com/cesar-rodriguez/terraform-pipeline.git
 
   # Interacting with vault to get AWS credentials
-#  - name: vault
-#    type: vault
-#    source:
-#      url: ((vault-address))
-#      auth_method: AppRole
-#      role_id: ((vault-role-id))
-#      secret_id: ((vault-secret-id))
+  - name: vault
+    type: vault
+    source:
+      url: ((vault-address))
+      auth_method: AppRole
+      role_id: ((vault-role-id))
+      secret_id: ((vault-secret-id))
 
   # Interacts with GitHub pull requests
   - name: pull-request
@@ -53,13 +45,95 @@ resources:
 # Jobs to be executed against the resources
 # http://concourse.ci/configuring-jobs.html
 jobs:
+  # Builds terraform plan output and stores it in S3
+  - name: build
+    public: true
+    plan:
+      # Running get resources in parallel.
+      - aggregate:
+        # The paths where Vault resource needs to read STS tokens needs to be provided
+        - get: vault
+          params:
+            paths:
+              - ((vault-stage-sts-path))
+              - ((vault-prod-sts-path))
+        - get: ci-repo
+        - do:
+          - get: pull-request
+            trigger: true
+            version: every
+          - put: pull-request
+            params:
+              path: pull-request
+              status: pending
+      # Generates AWS credentials file: http://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html
+      - task: get-credentials
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: digitalgenius/alpine-jq-git, tag: "latest"}
+          params:
+            DEBUG_MODE: ((debug-mode))
+            PIPELINE_AWS_ROLE: ((vault-aws-role-name))
+          inputs:
+          - name: vault
+          - name: ci-repo
+          outputs:
+          - name: aws-creds
+          run:
+            path: sh
+            args: ["ci-repo/scripts/ci/get_aws_credentials.sh"]
+      - aggregate:
+        # Checks if terraform is properly formatted
+        - task: terraform-format
+          config:
+            platform: linux
+            image_resource:
+              type: docker-image
+              source: {repository: hashicorp/terraform, tag: "light"}
+            params:
+              DEBUG_MODE: ((debug-mode))
+            inputs:
+              - name: pull-request
+              - name: ci-repo
+            outputs:
+              -name: pull-request-comment
+            run:
+              path: sh
+              args: ["ci-repo/scripts/ci/terraform_format.sh"]
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: failure
+              comment: "pull-request-comment/comment"
+#        # Runs terraform plan and outputs tar file
+#        - task: terraform-plan
+#          config:
+#            platform: linux
+#            image_resource:
+#              type: docker-image
+#              source: {repository: hashicorp/terraform, tag: "light"}
+#            params:
+#              DEBUG_MODE: ((debug-mode))
+#              BUILD_PIPELINE_NAME: ((github-repo))
+#            inputs:
+#              - name: aws-creds
+#              - name: pull-request
+#                path: infrastructure-repo
+#              - name: ci-repo
+#            outputs:
+#              - name: terraform-plan-out
+#            run:
+#              path: sh
+#              args: ["ci-repo/scripts/ci/terraform_plan_pr.sh"]
+
   # test - Perform "unit tests" on terraform resources
   - name: test
     public: true
-    serial_groups: [pr]
     plan:
     - aggregate:
-#      - get: infrastructure-repo
       - get: ci-repo
       - do:
         - get: pull-request
@@ -79,7 +153,6 @@ jobs:
         params:
           DEBUG_MODE: ((debug-mode))
         inputs:
-#          - name: infrastructure-repo
           - name: ci-repo
           - name: pull-request
         outputs:
