@@ -20,6 +20,8 @@ RED='\033[0;31m'
 mkdir -p ~/.aws
 cp aws-creds/credentials ~/.aws/credentials
 
+WORK_DIR=$(pwd)
+
 # "Building" terraform
 errors=0
 for env in $(ls infrastructure-repo/environments | grep '.tfvars' | cut -d '.' -f 1)
@@ -51,9 +53,9 @@ do
         cat tfplan.txt
 
         echo "Figuring out were we're at ../"
-        ls ~
+        ls ${WORK_DIR}
 
-        echo "ERROR in terraform plan for environment: $env" >> ~/pull-request-comment/comment
+        echo "ERROR in terraform plan for environment: $env" >> ${WORK_DIR}/pull-request-comment/comment
         cat tfplan.txt >> pull-request-comment/comment
         errors=1
         cd ../../
@@ -62,7 +64,11 @@ do
     else
         echo "BUILDING $env: terraform plan <diff>"
         cat tfplan.txt
-        echo "terraform plan output for environment: $env" >> ~/pull-request-comment/comment
+
+        echo "Figuring out were we're at ../"
+        ls ${WORK_DIR}
+
+        echo "terraform plan output for environment: $env" >> ${WORK_DIR}/pull-request-comment/comment
         cat tfplan.txt >> pull-request-comment/comment
         cd ../../
         echo
