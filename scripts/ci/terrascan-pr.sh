@@ -26,7 +26,7 @@ echo "TERRAFORM_LOCATION = \"../../pull-request\"" > terrascan/settings.py
 echo "Running terrascan..."
 python -m unittest 2>&1 | tee ../pull-request-comment/comment
 
-echo "# [Terrascan](https://github.com/cesar-rodriguez/terrascan) Output
+echo "# Terrascan Output for $(git rev-parse HEAD | cut -c1-7):
 $(cat ../pull-request-comment/comment)" > ../pull-request-comment/comment
 
 # Exit 1 if unit test contains FAILED in it's output
