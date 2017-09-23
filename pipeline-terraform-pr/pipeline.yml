@@ -48,6 +48,7 @@ jobs:
   # Builds terraform plan output and stores it in S3
   - name: build
     public: true
+    serial_groups: [pr]
     plan:
       # Running get resources in parallel.
       - aggregate:
@@ -98,7 +99,7 @@ jobs:
               - name: pull-request
               - name: ci-repo
             outputs:
-              -name: pull-request-comment
+              - name: pull-request-comment
             run:
               path: sh
               args: ["ci-repo/scripts/ci/terraform_format.sh"]
@@ -132,12 +133,14 @@ jobs:
   # test - Perform "unit tests" on terraform resources
   - name: test
     public: true
+    serial_groups: [pr]
     plan:
     - aggregate:
       - get: ci-repo
       - do:
         - get: pull-request
           trigger: true
+          passed: ["build"]
           version: every
         - put: pull-request
           params:
