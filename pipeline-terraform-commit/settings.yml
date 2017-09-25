@@ -1,0 +1,29 @@
+# Debug Mode will output all info, including sensitive data, in CI scripts to Concourse UI
+debug-mode: true
+
+# GitHub Config
+github-uri:
+github-branch:
+github-org:
+github-repo:
+# github-personal-access-token: SHOULD BE STORED IN VAULT
+# github-private-key: SHOULD BE STORED IN VAULT
+
+# Vault Config
+vault-stage-sts-path:
+vault-prod-sts-path:
+vault-aws-role-name:
+# vault-address: SHOULD BE STORED IN VAULT
+# vault-role-id: SHOULD BE STORED IN VAULT
+# vault-secret-id: SHOULD BE STORED IN VAULT
+
+# Email Config
+smtp-host:
+smtp-port:
+# smtp-username: SHOULD BE STORED IN VAULT
+# smtp-password: SHOULD BE STORED IN VAULT
+# email-from: SHOULD BE STORED IN VAULT
+
+# S3 Bucket Config
+s3-bucket-name:
+s3-bucket-profile:
