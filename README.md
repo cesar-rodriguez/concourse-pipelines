@@ -42,3 +42,22 @@ The following resources need to be configured in `settings.py`
 - SMTP - Email notifications are sent when a commit has successfully completed the testing job
 - S3 bucket - The terraform plans are stored in S3
 - GitHub - The repository containing the terraform templates needs to be provided in addition to a personal access token and access keys.
+
+### pipeline-terraform-pr
+
+Pipeline used to review pull requests on [terraform](https://terraform.io) repositories. The pipeline will attempt to do a `terraform plan` on all environments, and run [terrascan](https://github.com/cesar-rodriguez/terrascan). It's triggered by any pull requests to the configured repository.
+
+![pipeline-terraform-commit](images/pipeline-terraform-pr.png)
+
+#### How it works
+
+Jobs:
+- Build: - Build: Makes sure that terraform is formatted and runs `terraform plan` for each environment. The output of the `terraform fmt` command and `terraform plan` is stored as a comment on the pull request.
+- Test: Runs [terrascan](https://github.com/cesar-rodriguez/terrascan) to check for any security/operational issues in the code. The output is stored as a comment on the pull request.
+
+#### Setup:
+
+The following resources need to be configured in `settings.py`
+- Vault for AWS STS token access - The [vault-aws-setup.sh](scripts/tools/vault-aws-setup.sh) script contains a sample configuration of Vault's AWS secret backend.
+- GitHub - The repository containing the terraform templates needs to be provided in addition to a personal access token and access keys.
+
