@@ -4,7 +4,7 @@ This repository contains a collection of [Concourse CI](https://concourse.ci) pi
 
 ### Pre-requisites
 
-To configure a pipeline all settings in [settings.yml](settings.yml) must be pre-populated, with sensitive data stored in Vault following Concourse's [credential lookup rules](http://concourse.ci/creds.html#vault). The [yaml2vault.py](../scripts/tools/yaml2vault.py) can be used to write secrets from a yaml file to Vault.
+To configure a pipeline all settings in the `settings.yml` must be pre-populated, with sensitive data stored in Vault following Concourse's [credential lookup rules](http://concourse.ci/creds.html#vault). The [yaml2vault.py](scripts/tools/yaml2vault.py) can be used to write secrets from a yaml file to Vault.
 
 To pipeline templates require Concourse to be setup and configured with Vault for secrets management. A [vagrant box](Vagrantfile) is provided this repository with a sample Concourse setup for local testing.
 
@@ -23,7 +23,7 @@ Pipeline Templates
 
 ### pipeline-terraform-commit
 
-Handles AWS infrastructure provisioning workflow using [terraform](terraform.io), [Vault](vaultproject.io) (AWS backend), [terrascan](https://github.com/cesar-rodriguez/terrascan) (for static code analysis), and AWS S3 for storage of terraform plans. The pipeline is triggered through commits to a specified branch.
+Handles AWS infrastructure provisioning workflow using [terraform](https://terraform.io), [Vault](https://vaultproject.io) (AWS backend), [terrascan](https://github.com/cesar-rodriguez/terrascan) (for static code analysis), and AWS S3 for storage of terraform plans. The pipeline is triggered through commits to a specified branch.
 
 ![pipeline-terraform-commit](images/pipeline-terraform-commit.png)
 
