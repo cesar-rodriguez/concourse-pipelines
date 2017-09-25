@@ -1,44 +1,44 @@
-terraform-pipeline
-===================
+Concourse Pipelines
+====================
+This repository contains a collection of [Concourse CI](https://concourse.ci) pipelines used for AWS infrastructure provisioning. Each pipeline directory contains a `pipeline.yml` defining the pipeline, and a `settings.yml` file containing the expected parameters. The `scripts/ci` directory contain the scrips used by the templates.
 
-A [Concourse CI](https://concourse.ci) pipeline for terraform.
+### Pre-requisites
+
+To configure a pipeline all settings in [settings.yml](settings.yml) must be pre-populated, with sensitive data stored in Vault following Concourse's [credential lookup rules](http://concourse.ci/creds.html#vault). The [yaml2vault.py](../scripts/tools/yaml2vault.py) can be used to write secrets from a yaml file to Vault.
+
+To pipeline templates require Concourse to be setup and configured with Vault for secrets management. A [vagrant box](Vagrantfile) is provided this repository with a sample Concourse setup for local testing.
+
+### Pipeline setup
+
+A pipeline can be setup with the following commands
+
+```bash
+fly --target lite login -c ${CONCOURSE_URL}
+fly --target lite set-pipeline --pipeline ${PIPELINE_NAME} --config pipeline.yml -n --load-vars-from settings.yml
+fly --target lite unpause-pipeline --pipeline ${PIPELINE_NAME}
+```
+
+Pipeline Templates
+-------------------
+
+### pipeline-terraform-commit
+
+Handles AWS infrastructure provisioning workflow using [terraform](terraform.io), [Vault](vaultproject.io) (AWS backend), [terrascan](https://github.com/cesar-rodriguez/terrascan) (for static code analysis), and AWS S3 for storage of terraform plans. The pipeline is triggered through commits to a specified branch.
+
+![pipeline-terraform-commit](images/pipeline-terraform-commit.png)
+
+#### How it works
 
 Jobs:
-1. **Code** = Initiate the pipeline through a commit or merge to the master branch on the infrastructure-repo. (To do: trigger pipeline through PRs)
-2. **Scan** = Scans the terraform templates for security and quality
-3. **Build** = Retrieve AWS STS tokens from Vault and produce a terraform plan file for each environment. The output is stored as a tar file in S3.
-4. **Test** = Provision infrastructure in test environment and make sure terraform applies perform as expected.
-5. **Provision** = Manually triggered to provision infrastructure by running `terraform apply` on all of the terraform plans
-6. **Release** = Creates a release in github
+- Build: Makes sure that terraform is formatted and runs `terraform plan`, storing the output in S3.
+- Test: Runs [terrascan](https://github.com/cesar-rodriguez/terrascan) to check for any security/operational issues in the code. An email is sent if successful.
+- Provision: Needs to be manually triggered to run `terraform apply` in all environments with changes. This will create a GitHub release.
+- Versioning: Manual jobs can be triggered to bump the semantic version of the releases. The [create_version_branch.sh](scripts/tools/create_version_branch.sh) script helps setup the target repository for versioning.
 
-Pipeline should flow as follows:
-trigger -> scan -> build -> test -> send email for manual review of terraform plan -> provision -> release
+#### Setup:
 
-Scanning
----------
-Static code analysis of the terraform templates should be performed to ensure security, operations, and development best practices are followed. Any issues that are considered blockers will stop the pipeline from moving forward and any issues that are non-blocking should be captured as github issues.
-
-It's important to block any dangerous operations at this step prior to running test.
-
-Testing
---------
-Provision infrastructure in test environment and use something like kitchen-terraform or serverspec to test. The following types of tests should be performed:
-- Unit tests = test single terraform modules
-- Integration tests = tests infrastructure as a whole
-
-Provisioning
-------------
-Provisions infrastructure to the all specified environments and runs a smoke test to ensure everything works as expected.
-
-Setting up the pipeline
-=========================
-A file named ci/credentials.yml should be created with all required variables and credentials, then the following fly command should be executed
-
-fly -t terraform sp --config ci/pipeline.yml --pipeline terraform -n --load-vars-from ci/credentials.yml --var "github-private-key=$(cat ~/.ssh/id_rsa_pub_github_no_pass)"
-
-Semantic versioning
-====================
-The provision step automatically bumps patch version number (e.g. 0.0.1 -> 0.0.2). The minor and major version bumps should be manually triggered prior to commits intended to that version. The following convention should be followed for bumping versions:
-- **major**: Bump the major version number, e.g. 1.0.0 -> 2.0.0. when breaking changes are introduced to terraform templates.
-- **minor**: Bump the minor version number, e.g. 0.1.0 -> 0.2.0. when non-breaking changes are introduced to terraform templates
-- **patch**: Bump the patch version number, e.g. 0.0.1 -> 0.0.2. when minor changes are introduced to tfvars files.
+The following resources need to be configured in `settings.py`
+- Vault for AWS STS token access - The [vault-aws-setup.sh](scripts/tools/vault-aws-setup.sh) script contains a sample configuration of Vault's AWS secret backend.
+- SMTP - Email notifications are sent when a commit has successfully completed the testing job
+- S3 bucket - The terraform plans are stored in S3
+- GitHub - The repository containing the terraform templates needs to be provided in addition to a personal access token and access keys.
