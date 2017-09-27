@@ -7,7 +7,7 @@
 # export VAULT_TOKEN='1234'
 # export AWS_PROFILES='therasec-stage therasec-prod'
 # export VAULT_IAM_USER_NAME='vault-iam'
-# export AWS_ROLES_TO_ONBOARD='admin'
+# export AWS_ROLES_TO_ONBOARD='ec2admin'
 #
 
 set -x
