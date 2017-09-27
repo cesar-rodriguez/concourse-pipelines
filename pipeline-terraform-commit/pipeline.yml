@@ -36,7 +36,7 @@ resources:
   - name: ci-repo
     type: git
     source:
-      uri: https://github.com/cesar-rodriguez/terraform-pipeline.git
+      uri: https://github.com/cesar-rodriguez/concourse-pipelines.git
 
   # Status of commit going through the pipeline https://github.com/dpb587/github-status-resource
   - name: commit-status

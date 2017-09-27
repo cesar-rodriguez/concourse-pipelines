@@ -21,7 +21,7 @@ resources:
   - name: ci-repo
     type: git
     source:
-      uri: https://github.com/cesar-rodriguez/terraform-pipeline.git
+      uri: https://github.com/cesar-rodriguez/concourse-pipelines.git
 
   # Interacting with vault to get AWS credentials
   - name: vault
