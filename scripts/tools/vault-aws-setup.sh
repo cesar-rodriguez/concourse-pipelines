@@ -64,3 +64,6 @@ do
     echo
     echo
 done
+
+echo "Enabling secret backend"
+vault mount -path=concourse generic
