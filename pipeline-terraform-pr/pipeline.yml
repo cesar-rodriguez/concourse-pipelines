@@ -45,7 +45,7 @@ resources:
 # Jobs to be executed against the resources
 # http://concourse.ci/configuring-jobs.html
 jobs:
-  # Builds terraform plan output and stores it in S3
+  # Builds terraform plan
   - name: build
     public: true
     serial_groups: [pr]
@@ -109,7 +109,7 @@ jobs:
             status: failure
             comment: "pull-request-comment/comment"
             context: build
-      # Runs terraform plan and outputs tar file
+      # Runs terraform plan
       - task: terraform-plan
         config:
           platform: linux
