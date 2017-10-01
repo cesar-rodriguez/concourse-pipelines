@@ -14,8 +14,6 @@ vault-stage-sts-path:
 vault-prod-sts-path:
 vault-aws-role-name:
 # vault-address: SHOULD BE STORED IN VAULT
-# vault-role-id: SHOULD BE STORED IN VAULT
-# vault-secret-id: SHOULD BE STORED IN VAULT
 
 # Email Config
 smtp-host:
