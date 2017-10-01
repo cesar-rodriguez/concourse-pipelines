@@ -1,7 +1,6 @@
 To do
 ======
 
-- **Resources** - Add GitHub AuthN to Vault resource
 - **Docker images** - Create docker image for terrascan
 - **Docker images** - Create docker image for terraform that includes AWS provider
 - **All Pipelines** - Require GPG signed commits to run the pipeline

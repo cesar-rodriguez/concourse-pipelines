@@ -8,12 +8,15 @@
 # export AWS_PROFILES='therasec-stage therasec-prod'
 # export VAULT_IAM_USER_NAME='vault-iam'
 # export AWS_ROLES_TO_ONBOARD='ec2admin'
+# export GITHUB_TEAM='admins'
+# export GITHUB_ORG='therasec'
 #
 
 set -x
 
-echo "Enable Approle"
-vault auth-enable approle
+echo "Enable GitHub"
+vault auth-enable github
+vault write auth/github/config organization=${GITHUB_ORG}
 
 set -e
 
@@ -54,16 +57,13 @@ path \"aws/${AWS_PROFILE}/sts/${role}\" {
     done
 done
 
+echo "Adding policies to GitHub team: ${GITHUB_TEAM}"
+POLICIES=""
 for role in $AWS_ROLES_TO_ONBOARD
 do
-    echo "Creating approle aws-sts-${role}"
-    vault write auth/approle/role/aws-sts-${role} bind_cidr_list=192.168.0.0/16,127.0.0.1/32 policies=aws-sts-${role} token_num_uses=0 token_ttl=72h token_max_ttl=720h secret_id_ttl=72h
-    echo "Retrieving authentication tokens"
-    vault read auth/approle/role/aws-sts-${role}/role-id
-    vault write -f auth/approle/role/aws-sts-${role}/secret-id
-    echo
-    echo
+    POLICIES="aws-sts-${role},${POLICIES}"
 done
+vault write auth/github/map/teams/admins value=${POLICIES}
 
 echo "Enabling secret backend"
 vault mount -path=concourse generic

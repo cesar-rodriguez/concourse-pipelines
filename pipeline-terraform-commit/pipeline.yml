@@ -1,11 +1,11 @@
 ---
 # Community resources: http://concourse.ci/configuring-resource-types.html
 resource_types:
-  # Fetches secrets custom paths in Vault: https://github.com/Docurated/concourse-vault-resource
+  # Fetches secrets custom paths in Vault: https://github.com/therasec/concourse-vault-resource
   - name: vault
     type: docker-image
     source:
-      repository: docurated/concourse-vault-resource
+      repository: therasec/concourse-vault-resource
       tag: latest
 
   # Interacts with GitHub commit status: https://github.com/dpb587/github-status-resource
@@ -83,9 +83,8 @@ resources:
     type: vault
     source:
       url: ((vault-address))
-      auth_method: AppRole
-      role_id: ((vault-role-id))
-      secret_id: ((vault-secret-id))
+      auth_method: github
+      github_personal_access_token: ((github-personal-access-token))
 
 
 # Jobs to be executed against the resources
