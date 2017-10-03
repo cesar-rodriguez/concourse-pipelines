@@ -19,6 +19,7 @@ mkdir -p ~/.aws
 cp aws-creds/credentials ~/.aws/credentials
 
 # Provisioning infrastructure
+export TF_IN_AUTOMATION="true"
 tar -xzf artifacts/${BUILD_PIPELINE_NAME}-$(cat version/number).tgz
 for env in $(ls terraform-plan-out)
 do

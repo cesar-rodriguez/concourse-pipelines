@@ -21,6 +21,7 @@ mkdir -p ~/.aws
 cp aws-creds/credentials ~/.aws/credentials
 
 # "Building" terraform
+export TF_IN_AUTOMATION="true"
 errors=0
 for env in $(ls infrastructure-repo/environments | grep '.tfvars' | cut -d '.' -f 1)
 do
